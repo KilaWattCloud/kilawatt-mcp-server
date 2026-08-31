@@ -1,0 +1,13 @@
+{
+  "name": "kilawatt-mcp-server",
+  "version": "0.1.0",
+  "description": "Kilawatt Cloud MCP Server for AI Agent GPU Orchestration",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0"
+  }
+}
