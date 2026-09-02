@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Kilawatt Cloud MCP Server for AI Agent GPU Orchestration",
   "main": "index.js",
+  "mcpName": "io.github.KilaWattCloud/kilawatt-mcp-server",
   "type": "module",
   "scripts": {
     "start": "node index.js"
