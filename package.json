@@ -1,10 +1,11 @@
 {
   "name": "kilawatt-mcp-server",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Kilawatt Cloud MCP Server for AI Agent GPU Orchestration",
   "main": "index.js",
-  "mcpName": "io.github.KilaWattCloud/kilawatt-mcp-server",
   "type": "module",
+  "license": "MIT",
+  "mcpName": "io.github.KilaWattCloud/kilawatt-mcp-server",
   "repository": {
     "type": "git",
     "url": "https://github.com/KilaWattCloud/kilawatt-mcp-server"
@@ -16,3 +17,4 @@
     "@modelcontextprotocol/sdk": "^1.0.0"
   }
 }
+
