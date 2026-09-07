@@ -5,6 +5,10 @@
   "main": "index.js",
   "mcpName": "io.github.KilaWattCloud/kilawatt-mcp-server",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KilaWattCloud/kilawatt-mcp-server"
+  },
   "scripts": {
     "start": "node index.js"
   },
