@@ -5,11 +5,23 @@
   "main": "index.js",
   "type": "module",
   "license": "MIT",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "gpu",
+    "cloud-compute",
+    "ai-agent",
+    "kilawatt"
+  ],
   "mcpName": "io.github.KilaWattCloud/kilawatt-mcp-server",
   "repository": {
     "type": "git",
     "url": "https://github.com/KilaWattCloud/kilawatt-mcp-server"
   },
+  "bugs": {
+    "url": "https://github.com/KilaWattCloud/kilawatt-mcp-server/issues"
+  },
+  "homepage": "https://github.com/KilaWattCloud/kilawatt-mcp-server#readme",
   "scripts": {
     "start": "node index.js",
     "check": "node --check index.js"

@@ -1,0 +1,55 @@
+name: Bug report
+description: Report a reproducible problem in kilawatt-mcp-server
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this issue.
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Clear description of the observed issue.
+      placeholder: Tell us what failed.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Provide exact steps so we can reproduce quickly.
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      placeholder: What should have happened?
+    validations:
+      required: true
+  - type: input
+    id: node-version
+    attributes:
+      label: Node.js version
+      placeholder: e.g. 20.15.1
+    validations:
+      required: true
+  - type: input
+    id: package-version
+    attributes:
+      label: Package version
+      placeholder: e.g. 0.1.2
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or error output
+      render: shell

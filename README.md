@@ -1,8 +1,18 @@
 # kilawatt-mcp-server
 
+[![CI](https://github.com/KilaWattCloud/kilawatt-mcp-server/actions/workflows/test.yml/badge.svg)](https://github.com/KilaWattCloud/kilawatt-mcp-server/actions/workflows/test.yml)
+[![npm version](https://img.shields.io/npm/v/kilawatt-mcp-server.svg)](https://www.npmjs.com/package/kilawatt-mcp-server)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Model Context Protocol (MCP) server for Kilawatt Cloud GPU provisioning. Enables Cursor, Claude Desktop, and other AI agents to programmatically request and manage real GPU compute nodes.
 
 **This server calls the real Kilawatt gateway** — every response is an actual HTTP result from `https://www.kilawattcloud.dev/api/public/v1`. There are no mock or fabricated responses.
+
+## Project Status
+
+- Current versions are pre-1.0 (`0.x`), which means APIs may evolve between minor releases.
+- The project is actively maintained with CI checks on pushes and pull requests.
+- Tagged versions are published with changelog-backed release notes in GitHub Releases.
 
 ## Installation
 

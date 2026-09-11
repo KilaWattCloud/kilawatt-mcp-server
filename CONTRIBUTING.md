@@ -36,32 +36,31 @@ cd kilawatt-mcp-server
 # Install dependencies
 npm install
 
-# Build the project
-npm run build
-
-# Run type checking
-npm run typecheck
+# Run syntax checks
+npm run check
 ```
 
 ## Code Style Expectations
 
-- Follow ESLint configuration if present in the repo
-- Use 2-space indentation
-- Prefer const/let over var
-- Write descriptive variable and function names
-- Add comments for complex logic
+- Match existing JavaScript style in the repository
+- Use descriptive variable and function names
 - Keep functions focused and testable
-- Write TypeScript with strict mode enabled
-- Format code before committing (use Prettier if configured)
+- Add comments only when they clarify non-obvious behavior
 
 ## Pull Request Process
 
-1. Ensure your code passes linting and type checking
-2. Verify the build succeeds with `npm run build`
+1. Ensure your code passes `npm run check`
+2. Confirm CI passes for supported Node.js versions
 3. Update documentation if you've changed functionality
 4. Add a clear description of what your PR does
 5. Be responsive to review feedback
 6. Once approved, a maintainer will merge your PR
+
+## Branch Protection and Reviews
+
+- Pull requests to `main` should include at least one review.
+- CI checks from `.github/workflows/test.yml` must pass before merge.
+- Maintainers should keep `main` protected with required status checks and review enforcement.
 
 ## Questions?
 
