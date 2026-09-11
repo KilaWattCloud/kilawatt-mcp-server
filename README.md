@@ -20,7 +20,7 @@ Set your Kilawatt API key as an environment variable before running the server:
 export KILAWATT_API_KEY=kw_live_YOUR_KEY_HERE
 ```
 
-The API key must start with `kw_live_` and can be generated in the [Kilawatt console](https://console.kilawattcloud.dev) (Developer tab).
+The API key must start with `kw_live_`. API keys are issued through your Kilawatt Cloud account. Contact hello@kilawattcloud.dev for assistance if you don't have access to generate keys yet.
 
 Optionally, override the gateway URL:
 
@@ -115,7 +115,7 @@ Would route through (in order): provider-a → provider-b → provider-c
 All errors are descriptive and indicate whether anything was provisioned or charged. Common scenarios:
 
 - **400 Bad Request**: Invalid arguments (e.g., `card_count` > 64). Fix and retry.
-- **401 Unauthorized**: API key missing, malformed, or revoked. Issue a new key in the console.
+- **401 Unauthorized**: API key missing, malformed, or revoked. Issue a new key in your Kilawatt account or contact hello@kilawattcloud.dev.
 - **402 Payment Required**: Insufficient balance or spend cap. Top up in the Kilawatt wallet.
 - **429 Rate Limited**: Concurrency or rate limit hit. Retry after a delay.
 - **503 No Capacity**: No nodes available matching your criteria. Try a different `gpu_type` or smaller `card_count`.
