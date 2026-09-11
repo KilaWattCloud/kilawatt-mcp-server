@@ -1,5 +1,45 @@
-src/
-tsconfig.json
+# Dependencies
+node_modules/
+
+# Development files
+.git/
 .github/
 .gitignore
-tests/
+.npmignore
+
+# Documentation
+README.md
+CHANGELOG.md
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+SECURITY.md
+
+# Testing
+*.test.js
+*.spec.js
+__tests__/
+test/
+
+# CI/CD
+.github/workflows/
+.gitlab-ci.yml
+.travis.yml
+appveyor.yml
+
+# Editor config
+.editorconfig
+.eslintrc*
+.prettierrc*
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Coverage
+coverage/
+*.lcov
+
+# Misc
+TSConfig.json
