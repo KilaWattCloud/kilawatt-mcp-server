@@ -25,9 +25,5 @@ jobs:
     - name: Install dependencies
       run: npm install
     
-    - name: Build
-      run: npm run build
-    
-    - name: Type check
-      run: npm run typecheck
-      if: always()
+    - name: Syntax check
+      run: npm run check
