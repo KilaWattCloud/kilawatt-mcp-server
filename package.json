@@ -11,10 +11,10 @@
     "url": "https://github.com/KilaWattCloud/kilawatt-mcp-server"
   },
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "check": "node --check index.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0"
   }
 }
-
