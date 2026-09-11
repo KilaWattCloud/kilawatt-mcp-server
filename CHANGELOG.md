@@ -8,7 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Repository governance and automation: Dependabot config, issue/PR templates, CODEOWNERS, and release workflow.
+- Repository governance and automation files:
+  - `.github/dependabot.yml`
+  - `.github/CODEOWNERS`
+  - Issue templates and pull request template
+  - Release workflow for semantic version tags
+  - `.github/FUNDING.yml`
+
+### Changed
+- README now includes build, release, and license badges.
+- CONTRIBUTING now aligns contributor guidance with actual project scripts and CI.
 
 ## [0.1.2] - 2026-09-11
 
@@ -17,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Contributing guidelines
 - Code of Conduct
 - Syntax validation for plain JavaScript via npm check script
+- Initial changelog scaffolding and semantic version release notes format
 
 ## [0.1.1] - 2026-09-11
 
@@ -27,6 +37,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GPU deployment tool with retry logic
 - MIT License
 - Security policy
+
+### Notes
+- This release established the initial API surface and project governance baseline.
 
 [Unreleased]: https://github.com/KilaWattCloud/kilawatt-mcp-server/compare/v0.1.2...HEAD
 [0.1.2]: https://github.com/KilaWattCloud/kilawatt-mcp-server/compare/v0.1.1...v0.1.2
