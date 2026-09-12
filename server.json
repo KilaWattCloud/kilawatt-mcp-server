@@ -17,11 +17,18 @@
       },
       "environmentVariables": [
         {
-          "description": "Your API key for the service",
+          "description": "Kilawatt API key (must start with kw_live_)",
           "isRequired": true,
           "format": "string",
           "isSecret": true,
-          "name": "YOUR_API_KEY"
+          "name": "KILAWATT_API_KEY"
+        },
+        {
+          "description": "Optional override for Kilawatt gateway base URL",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false,
+          "name": "KILAWATT_BASE_URL"
         }
       ]
     }

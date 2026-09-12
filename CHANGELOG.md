@@ -14,10 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Issue templates and pull request template
   - Release workflow for semantic version tags
   - `.github/FUNDING.yml`
+- `OPERATIONS.md` to define configuration source-of-truth, publishing workflow, and role ownership model.
 
 ### Changed
 - README now includes build, release, and license badges.
 - CONTRIBUTING now aligns contributor guidance with actual project scripts and CI.
+- `server.json` now declares the same runtime environment variables used by the server (`KILAWATT_API_KEY`, optional `KILAWATT_BASE_URL`).
 
 ## [0.1.2] - 2026-09-11
 

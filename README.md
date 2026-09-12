@@ -13,6 +13,7 @@ Model Context Protocol (MCP) server for Kilawatt Cloud GPU provisioning. Enables
 - Current versions are pre-1.0 (`0.x`), which means APIs may evolve between minor releases.
 - The project is actively maintained with CI checks on pushes and pull requests.
 - A release workflow is configured to publish GitHub Releases from semantic version tags (`v*.*.*`).
+- Operational source-of-truth and ownership workflow are documented in `OPERATIONS.md`.
 
 ## Installation
 
