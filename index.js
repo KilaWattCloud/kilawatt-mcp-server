@@ -87,7 +87,7 @@ function baseUrl() {
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function postOnce(path, payload) {
-  const authorization = `******;
+  const authorization = ["Bearer", apiKey()].join(" ");
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
