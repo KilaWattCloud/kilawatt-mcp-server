@@ -59,7 +59,7 @@ Provision real GPU compute on Kilawatt Cloud. This immediately charges the calle
 | Parameter | Type | Required | Default | Range | Description |
 |-----------|------|----------|---------|-------|-------------|
 | `gpu_type` | string | No | `"nvidia-h100"` | — | GPU model identifier, e.g. `nvidia-h100`, `nvidia-h200`, `nvidia-b200` |
-| `card_count` | integer | No | `1` | 1–64 | Number of GPUs to provision |
+| `card_count` | integer | No | `1` | B200: 1–4; H100/H200/A100/L40S: 1–8; workstation cards: 1–16 | Number of GPUs to provision |
 | `duration_seconds` | number | No | `600` | 1–86400 | How long the node is needed, in seconds. Billed up front. |
 | `routing_policy` | string | No | `"lowest_cost"` | `lowest_cost`, `lowest_latency`, `zero_quota` | How the smart order router picks a node |
 | `dry_run` | boolean | No | `false` | — | Price and pre-authorize only. Returns cost estimate and routing order without provisioning or charging. |
@@ -118,7 +118,7 @@ Would route through (in order): provider-a → provider-b → provider-c
 
 All errors are descriptive and indicate whether anything was provisioned or charged. Common scenarios:
 
-- **400 Bad Request**: Invalid arguments (e.g., `card_count` > 64). Fix and retry.
+- **400 Bad Request**: Invalid arguments (e.g., `card_count` above the limit for the selected `gpu_type`). Fix and retry.
 - **401 Unauthorized**: API key missing, malformed, or revoked. Issue a new key in your Kilawatt account or contact hello@kilawattcloud.dev.
 - **402 Payment Required**: Insufficient balance or spend cap. Top up in the Kilawatt wallet.
 - **429 Rate Limited**: Concurrency or rate limit hit. Retry after a delay.

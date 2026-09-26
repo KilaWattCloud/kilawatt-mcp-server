@@ -26,9 +26,11 @@ const { version: SERVER_VERSION } = require("./package.json");
 const DEFAULT_BASE_URL = "https://www.kilawattcloud.dev/api/public/v1";
 const REQUEST_TIMEOUT_MS = 60_000;
 
-const MAX_CARD_COUNT = 64;
+const ABSOLUTE_MAX_CARD_COUNT = 16;
 const MAX_DURATION_SECONDS = 86_400;
 const ROUTING_POLICIES = ["lowest_cost", "lowest_latency", "zero_quota"];
+const EIGHT_GPU_TYPES = new Set(["h100", "h200", "a100", "l40s"]);
+const FOUR_GPU_TYPES = new Set(["b200"]);
 
 const RETRYABLE_STATUSES = new Set([429, 503]);
 const MAX_ATTEMPTS = 3;
@@ -215,6 +217,30 @@ function formatSuccess(result) {
   ].join("\n");
 }
 
+function normalizedGpuType(gpuType) {
+  return gpuType.toLowerCase().replace(/^nvidia-/, "").trim();
+}
+
+function cardCountLimitFor(gpuType) {
+  const normalized = normalizedGpuType(gpuType);
+  if (FOUR_GPU_TYPES.has(normalized)) {
+    return {
+      max: 4,
+      label: "B200 GPUs",
+    };
+  }
+  if (EIGHT_GPU_TYPES.has(normalized)) {
+    return {
+      max: 8,
+      label: "H100/H200/A100/L40S GPUs",
+    };
+  }
+  return {
+    max: ABSOLUTE_MAX_CARD_COUNT,
+    label: "workstation GPUs",
+  };
+}
+
 function validate(args) {
   const gpuType = String(args.gpu_type ?? "nvidia-h100").trim();
   if (!gpuType || gpuType.length > 64) {
@@ -222,8 +248,11 @@ function validate(args) {
   }
 
   const cardCount = Number(args.card_count ?? 1);
-  if (!Number.isInteger(cardCount) || cardCount < 1 || cardCount > MAX_CARD_COUNT) {
-    throw new Error(`card_count must be a whole number between 1 and ${MAX_CARD_COUNT}.`);
+  const { max: maxCardCount, label } = cardCountLimitFor(gpuType);
+  if (!Number.isInteger(cardCount) || cardCount < 1 || cardCount > maxCardCount) {
+    throw new Error(
+      `card_count must be a whole number between 1 and ${maxCardCount} for ${label}.`,
+    );
   }
 
   const durationSeconds = Number(args.duration_seconds ?? 600);
@@ -266,8 +295,9 @@ const DEPLOY_GPU_NODE = {
       card_count: {
         type: "integer",
         minimum: 1,
-        maximum: MAX_CARD_COUNT,
-        description: "Number of GPUs to provision.",
+        maximum: ABSOLUTE_MAX_CARD_COUNT,
+        description:
+          "Number of GPUs to provision. Limits depend on gpu_type: B200 1-4, H100/H200/A100/L40S 1-8, workstation cards 1-16.",
         default: 1,
       },
       duration_seconds: {
@@ -290,6 +320,40 @@ const DEPLOY_GPU_NODE = {
         default: false,
       },
     },
+    allOf: [
+      {
+        if: {
+          properties: {
+            gpu_type: {
+              pattern: "^(nvidia-)?b200$",
+            },
+          },
+        },
+        then: {
+          properties: {
+            card_count: {
+              maximum: 4,
+            },
+          },
+        },
+      },
+      {
+        if: {
+          properties: {
+            gpu_type: {
+              pattern: "^(nvidia-)?(h100|h200|a100|l40s)$",
+            },
+          },
+        },
+        then: {
+          properties: {
+            card_count: {
+              maximum: 8,
+            },
+          },
+        },
+      },
+    ],
     additionalProperties: false,
   },
 };
