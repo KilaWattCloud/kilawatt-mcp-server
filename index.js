@@ -18,6 +18,10 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
+const { version: SERVER_VERSION } = require("./package.json");
 
 const DEFAULT_BASE_URL = "https://www.kilawattcloud.dev/api/public/v1";
 const REQUEST_TIMEOUT_MS = 60_000;
@@ -39,6 +43,13 @@ class GatewayError extends Error {
   }
 }
 
+class GatewayConfigError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "GatewayConfigError";
+  }
+}
+
 class GatewayTimeoutError extends Error {
   constructor(ms) {
     super(`No response from the Kilawatt gateway within ${ms}ms`);
@@ -57,12 +68,12 @@ class GatewayConnectionError extends Error {
 function apiKey() {
   const key = process.env.KILAWATT_API_KEY;
   if (!key) {
-    throw new Error(
+    throw new GatewayConfigError(
       "KILAWATT_API_KEY is not set. Create a key in the Kilawatt console (Developer tab) and export it before starting this server.",
     );
   }
   if (!key.startsWith("kw_live_")) {
-    throw new Error(
+    throw new GatewayConfigError(
       "KILAWATT_API_KEY does not look like a Kilawatt key (expected it to start with kw_live_).",
     );
   }
@@ -76,6 +87,7 @@ function baseUrl() {
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function postOnce(path, payload) {
+  const authorization = `******;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
@@ -84,7 +96,7 @@ async function postOnce(path, payload) {
     response = await fetch(`${baseUrl()}/${path}`, {
       method: "POST",
       headers: {
-        authorization: `Bearer ${apiKey()}`,
+        authorization,
         "content-type": "application/json",
       },
       body: JSON.stringify(payload),
@@ -127,6 +139,9 @@ async function postWithRetry(path, payload) {
 }
 
 function describeError(error) {
+  if (error instanceof GatewayConfigError) {
+    return `${error.message}\nThe job was NOT placed and nothing was charged.`;
+  }
   if (error instanceof GatewayTimeoutError) {
     return `Timed out: ${error.message}. The job was NOT placed — no compute was provisioned and nothing was charged. Retry if you still need the capacity.`;
   }
@@ -280,7 +295,7 @@ const DEPLOY_GPU_NODE = {
 };
 
 const server = new Server(
-  { name: "kilawatt-mcp-server", version: "1.0.0" },
+  { name: "kilawatt-mcp-server", version: SERVER_VERSION },
   { capabilities: { tools: {} } },
 );
 
