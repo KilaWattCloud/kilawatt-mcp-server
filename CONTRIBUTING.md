@@ -36,11 +36,11 @@ cd kilawatt-mcp-server
 # Install dependencies
 npm install
 
-# Build the project
-npm run build
+# Check JavaScript syntax
+npm run check
 
-# Run type checking
-npm run typecheck
+# Start the server (requires KILAWATT_API_KEY)
+KILAWATT_API_KEY=kw_live_your_key npm start
 ```
 
 ## Code Style Expectations
@@ -56,8 +56,8 @@ npm run typecheck
 
 ## Pull Request Process
 
-1. Ensure your code passes linting and type checking
-2. Verify the build succeeds with `npm run build`
+1. Run `npm run check`
+2. Verify the server starts with `npm start` and a valid `KILAWATT_API_KEY`
 3. Update documentation if you've changed functionality
 4. Add a clear description of what your PR does
 5. Be responsive to review feedback

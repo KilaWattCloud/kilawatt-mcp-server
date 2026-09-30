@@ -280,7 +280,7 @@ const DEPLOY_GPU_NODE = {
 };
 
 const server = new Server(
-  { name: "kilawatt-mcp-server", version: "1.0.0" },
+  { name: "kilawatt-mcp-server", version: "0.1.2" },
   { capabilities: { tools: {} } },
 );
 
