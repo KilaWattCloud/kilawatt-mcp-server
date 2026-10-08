@@ -1,19 +1,19 @@
 # kilawatt-mcp-server
 
 [![Build Status](https://github.com/KilaWattCloud/kilawatt-mcp-server/workflows/Test/badge.svg)](https://github.com/KilaWattCloud/kilawatt-mcp-server/actions)
-[![Version](https://img.shields.io/github/v/release/KilaWattCloud/kilawatt-mcp-server)](https://github.com/KilaWattCloud/kilawatt-mcp-server/releases)
+[![npm version](https://img.shields.io/npm/v/kilawatt-mcp-server)](https://www.npmjs.com/package/kilawatt-mcp-server)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 Model Context Protocol (MCP) server for Kilawatt Cloud GPU provisioning. Enables Cursor, Claude Desktop, and other AI agents to programmatically request and manage real GPU compute nodes.
 
-**This server calls the real Kilawatt gateway** — every response is an actual HTTP result from `https://www.kilawattcloud.dev/api/public/v1`. There are no mock or fabricated responses.
+**This server calls the real Kilawatt gateway.** Every response is an actual HTTP result from `https://www.kilawattcloud.dev/api/public/v1`. There are no mock or fabricated responses.
 
 ## Installation
 
-Install via npm:
+Install and run via npx:
 
 ```bash
-npm install kilawatt-mcp-server
+npx -y kilawatt-mcp-server
 ```
 
 ## Configuration
@@ -31,6 +31,26 @@ Optionally, override the gateway URL:
 ```bash
 export KILAWATT_BASE_URL=https://www.kilawattcloud.dev/api/public/v1
 ```
+
+## Use with Claude Desktop / Cursor
+
+Add this configuration to your MCP client settings:
+
+```json
+{
+  "mcpServers": {
+    "kilawatt": {
+      "command": "npx",
+      "args": ["-y", "kilawatt-mcp-server"],
+      "env": {
+        "KILAWATT_API_KEY": "kw_live_YOUR_KEY_HERE"
+      }
+    }
+  }
+}
+```
+
+Replace `kw_live_YOUR_KEY_HERE` with your Kilawatt API key.
 
 ## Running the Server
 
@@ -58,11 +78,11 @@ Provision real GPU compute on Kilawatt Cloud. This immediately charges the calle
 
 | Parameter | Type | Required | Default | Range | Description |
 |-----------|------|----------|---------|-------|-------------|
-| `gpu_type` | string | No | `"nvidia-h100"` | — | GPU model identifier, e.g. `nvidia-h100`, `nvidia-h200`, `nvidia-b200` |
+| `gpu_type` | string | No | `"nvidia-h100"` | N/A | GPU model identifier, e.g. `nvidia-h100`, `nvidia-h200`, `nvidia-b200` |
 | `card_count` | integer | No | `1` | 1–64 | Number of GPUs to provision |
 | `duration_seconds` | number | No | `600` | 1–86400 | How long the node is needed, in seconds. Billed up front. |
 | `routing_policy` | string | No | `"lowest_cost"` | `lowest_cost`, `lowest_latency`, `zero_quota` | How the smart order router picks a node |
-| `dry_run` | boolean | No | `false` | — | Price and pre-authorize only. Returns cost estimate and routing order without provisioning or charging. |
+| `dry_run` | boolean | No | `false` | N/A | Price and pre-authorize only. Returns cost estimate and routing order without provisioning or charging. |
 
 **Example: Deploy 4 H100 GPUs for 1 hour at lowest cost**
 
@@ -93,26 +113,7 @@ Provision real GPU compute on Kilawatt Cloud. This immediately charges the calle
 }
 ```
 
-**Response (Success):**
-
-```
-GPU node running. Job ID: job_abc123xyz
-Node: provider-name
-Hardware: 4× nvidia-h100
-Workload: default   Routing policy: lowest_cost
-Billed: $12.3456
-Status: running
-```
-
-**Response (Dry Run):**
-
-```
-DRY RUN — nothing was provisioned and nothing was charged.
-Authorized: yes
-Estimated cost: $6.1728 for 2× nvidia-b200
-Routing policy: lowest_cost
-Would route through (in order): provider-a → provider-b → provider-c
-```
+Tool results are formatted from the real HTTP response returned by the Kilawatt gateway.
 
 ## Error Handling
 

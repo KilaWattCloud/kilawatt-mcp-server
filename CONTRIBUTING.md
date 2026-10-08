@@ -36,11 +36,8 @@ cd kilawatt-mcp-server
 # Install dependencies
 npm install
 
-# Build the project
-npm run build
-
-# Run type checking
-npm run typecheck
+# Run the syntax and MCP startup tests
+npm run check
 ```
 
 ## Code Style Expectations
@@ -56,12 +53,15 @@ npm run typecheck
 
 ## Pull Request Process
 
-1. Ensure your code passes linting and type checking
-2. Verify the build succeeds with `npm run build`
-3. Update documentation if you've changed functionality
-4. Add a clear description of what your PR does
-5. Be responsive to review feedback
-6. Once approved, a maintainer will merge your PR
+1. Ensure `npm test` and `npm run check` pass
+2. Update documentation if you've changed functionality
+3. Add a clear description of what your PR does
+4. Be responsive to review feedback
+5. Once approved, a maintainer will merge your PR
+
+## Releases
+
+Maintainers publish releases by publishing a GitHub Release. The release workflow publishes the package to npm with provenance using the repository's `NPM_TOKEN` secret. Do not publish the package manually.
 
 ## Questions?
 

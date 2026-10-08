@@ -6,12 +6,12 @@
     "url": "https://github.com/KilaWattCloud/kilawatt-mcp-server",
     "source": "github"
   },
-  "version": "0.1.2",
+  "version": "0.1.4",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "kilawatt-mcp-server",
-      "version": "0.1.2",
+      "version": "0.1.4",
       "transport": {
         "type": "stdio"
       },
@@ -21,7 +21,7 @@
           "isRequired": true,
           "format": "string",
           "isSecret": true,
-          "name": "YOUR_API_KEY"
+          "name": "KILAWATT_API_KEY"
         }
       ]
     }

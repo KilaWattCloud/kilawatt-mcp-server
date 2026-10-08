@@ -1,10 +1,33 @@
 {
   "name": "kilawatt-mcp-server",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "description": "Kilawatt Cloud MCP Server for AI Agent GPU Orchestration",
   "main": "index.js",
+  "bin": {
+    "kilawatt-mcp-server": "index.js"
+  },
+  "files": [
+    "index.js",
+    "README.md",
+    "LICENSE",
+    "server.json"
+  ],
   "type": "module",
   "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "mcp",
+    "gpu",
+    "x402",
+    "ai-agents",
+    "orchestration"
+  ],
+  "homepage": "https://github.com/KilaWattCloud/kilawatt-mcp-server#readme",
+  "bugs": {
+    "url": "https://github.com/KilaWattCloud/kilawatt-mcp-server/issues"
+  },
   "mcpName": "io.github.KilaWattCloud/kilawatt-mcp-server",
   "repository": {
     "type": "git",
@@ -12,7 +35,8 @@
   },
   "scripts": {
     "start": "node index.js",
-    "check": "node --check index.js"
+    "test": "node test/server.test.js",
+    "check": "node --check index.js && node --check test/server.test.js && npm test"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0"

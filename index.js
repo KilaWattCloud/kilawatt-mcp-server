@@ -14,11 +14,15 @@
 
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { readFileSync } from "node:fs";
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 
+const { version } = JSON.parse(
+  readFileSync(new URL("./package.json", import.meta.url), "utf8"),
+);
 const DEFAULT_BASE_URL = "https://www.kilawattcloud.dev/api/public/v1";
 const REQUEST_TIMEOUT_MS = 60_000;
 
@@ -280,7 +284,7 @@ const DEPLOY_GPU_NODE = {
 };
 
 const server = new Server(
-  { name: "kilawatt-mcp-server", version: "1.0.0" },
+  { name: "kilawatt-mcp-server", version },
   { capabilities: { tools: {} } },
 );
 
@@ -312,6 +316,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 });
 
 async function main() {
+  apiKey();
   await server.connect(new StdioServerTransport());
   console.error("kilawatt-mcp-server ready on stdio");
 }
