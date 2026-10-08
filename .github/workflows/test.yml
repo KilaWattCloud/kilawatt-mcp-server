@@ -25,9 +25,9 @@ jobs:
     - name: Install dependencies
       run: npm install
     
-    - name: Syntax check
+    - name: Check syntax and MCP protocol
       run: npm run check
-    
+
     - name: Test server startup
       run: |
         set +e

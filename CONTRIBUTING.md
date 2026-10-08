@@ -20,7 +20,7 @@ cd kilawatt-mcp-server
 # Install dependencies
 npm install
 
-# Check JavaScript syntax
+# Run the syntax and MCP protocol tests
 npm run check
 
 # Start the server (requires KILAWATT_API_KEY)
@@ -40,17 +40,21 @@ This is a plain JavaScript (ES6 modules) project without build, compilation, or 
 
 Before submitting a pull request, please:
 
-1. Run `npm run check` to validate JavaScript syntax
+1. Run `npm test` and `npm run check`
 2. Verify the server starts with `npm start` and a valid `KILAWATT_API_KEY`
 3. Test your changes locally with an MCP client if possible
 
 ## Pull Request Process
 
-1. Run `npm run check`
+1. Run `npm test` and `npm run check`
 2. Verify the server starts with `npm start` and a valid `KILAWATT_API_KEY`
 3. Update documentation if you've changed functionality
 4. Add a clear description of what your PR does
 5. Be responsive to review feedback
+
+## Releases
+
+Maintainers publish releases by publishing a GitHub Release. The release workflow publishes the package to npm with provenance using the repository's `NPM_TOKEN` secret. Do not publish the package manually.
 
 ## Reporting Issues
 
