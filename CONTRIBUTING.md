@@ -1,70 +1,71 @@
-# Contributing to Kilawatt MCP Server
+# Contributing to kilawatt-mcp-server
 
-Thank you for your interest in contributing to the Kilawatt MCP Server! We welcome contributions from the community.
+Thank you for your interest in contributing to kilawatt-mcp-server! We welcome all contributions, whether they're bug reports, feature requests, documentation improvements, or code changes.
 
-## How to Report Bugs
+## Getting Started
 
-If you discover a bug, please open a GitHub Issue with the following information:
+### Prerequisites
 
-- **Title**: A clear, concise description of the bug
-- **Description**: Detailed explanation of the issue
-- **Reproduction Steps**: Step-by-step instructions to reproduce the bug
-- **Expected Behavior**: What should happen
-- **Actual Behavior**: What actually happens
-- **Environment**: OS, Node.js version, package version
-- **Screenshots/Logs**: If applicable, include error messages or logs
+- Node.js 18.x or higher
+- npm 8.x or higher
 
-## How to Submit a Pull Request
+### Setup
 
-1. **Fork** the repository
-2. **Create a branch** from `main`: `git checkout -b feature/your-feature-name`
-3. **Make your changes** and commit with clear, descriptive messages
-4. **Follow code style** guidelines (see below)
-5. **Push** your branch to your fork
-6. **Open a Pull Request** against the `main` branch
-   - Link any related issues
-   - Describe your changes clearly
-   - Include any testing you've done
-
-## Development Setup
+1. Fork the repository and clone it locally
+2. Install dependencies:
 
 ```bash
-# Clone the repository
-git clone https://github.com/KilaWattCloud/kilawatt-mcp-server.git
 cd kilawatt-mcp-server
 
 # Install dependencies
 npm install
 
-# Run the syntax and MCP startup tests
+# Run the syntax and MCP protocol tests
 npm run check
+
+# Start the server (requires KILAWATT_API_KEY)
+KILAWATT_API_KEY=kw_live_your_key npm start
 ```
 
 ## Code Style Expectations
 
-- Follow ESLint configuration if present in the repo
-- Use 2-space indentation
-- Prefer const/let over var
-- Write descriptive variable and function names
+This is a plain JavaScript (ES6 modules) project without build, compilation, or type-checking steps. Please:
+
+- Write clear, readable code with meaningful variable names
 - Add comments for complex logic
-- Keep functions focused and testable
-- Write TypeScript with strict mode enabled
-- Format code before committing (use Prettier if configured)
+- Follow the existing code style in the repository
+- Use const for immutable values and let for reassignment
+
+## Testing Your Changes
+
+Before submitting a pull request, please:
+
+1. Run `npm test` and `npm run check`
+2. Verify the server starts with `npm start` and a valid `KILAWATT_API_KEY`
+3. Test your changes locally with an MCP client if possible
 
 ## Pull Request Process
 
-1. Ensure `npm test` and `npm run check` pass
-2. Update documentation if you've changed functionality
-3. Add a clear description of what your PR does
-4. Be responsive to review feedback
-5. Once approved, a maintainer will merge your PR
+1. Run `npm test` and `npm run check`
+2. Verify the server starts with `npm start` and a valid `KILAWATT_API_KEY`
+3. Update documentation if you've changed functionality
+4. Add a clear description of what your PR does
+5. Be responsive to review feedback
 
 ## Releases
 
 Maintainers publish releases by publishing a GitHub Release. The release workflow publishes the package to npm with provenance using the repository's `NPM_TOKEN` secret. Do not publish the package manually.
 
-## Questions?
+## Reporting Issues
 
-Reach out to us at hello@kilawattcloud.dev or open a discussion in the repository.
+If you find a bug or have a feature request, please open an issue with:
 
-Thank you for contributing!
+- A clear, descriptive title
+- A detailed description of the problem or request
+- Steps to reproduce (for bugs)
+- Expected vs. actual behavior
+- Your environment (Node.js version, OS, etc.)
+
+## License
+
+By contributing to this project, you agree that your contributions will be licensed under the MIT License.
