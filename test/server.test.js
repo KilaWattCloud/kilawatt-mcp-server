@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { once } from "node:events";
 import { createInterface } from "node:readline";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -253,6 +253,43 @@ for (const mode of [
     assert.equal(entries[1].idempotencyKey.length, 36);
   } finally {
     await legacyProtocol.stop();
+    await rm(directory, { recursive: true, force: true });
+  }
+}
+
+{
+  const { server: multipleOffers, directory, tracePath } = await startMock({
+    KILAWATT_X402_PRIVATE_KEY: privateKey,
+    X402_TEST_MULTI_ACCEPTS: "1",
+  });
+  try {
+    const result = await multipleOffers.call("x402_run_job", runArgs);
+    assert.match(result.result.content[0].text, /Job ID: test-job/);
+    const paid = (await trace(tracePath)).find((entry) => entry.paid);
+    const signed = JSON.parse(Buffer.from(paid.paymentHeader, "base64").toString("utf8"));
+    assert.equal(signed.accepted.network, "eip155:8453");
+    assert.equal(signed.accepted.amount, "10000");
+  } finally {
+    await multipleOffers.stop();
+    await rm(directory, { recursive: true, force: true });
+  }
+}
+
+{
+  const { server: preserveApiKey, directory, tracePath } = await startMock({
+    KILAWATT_X402_PRIVATE_KEY: privateKey,
+  });
+  try {
+    const keyPath = resolve(directory, ".config", "kilawatt", "x402-api-key");
+    const { mkdir } = await import("node:fs/promises");
+    await mkdir(dirname(keyPath), { recursive: true });
+    await writeFile(keyPath, "saved_for_another_payer\n", { mode: 0o600 });
+    const result = await preserveApiKey.call("x402_run_job", runArgs);
+    assert.match(result.result.content[0].text, /was kept unchanged/);
+    assert.equal((await readFile(keyPath, "utf8")).trim(), "saved_for_another_payer");
+    assert.equal((await trace(tracePath)).filter((entry) => entry.paid).length, 1);
+  } finally {
+    await preserveApiKey.stop();
     await rm(directory, { recursive: true, force: true });
   }
 }

@@ -215,7 +215,11 @@ async function quoteRequest(payload) {
   }
   const httpClient = new x402HTTPClient(new x402Client());
   const parsed = readRequirements(httpClient, response, body);
-  return { ...parsed, quote: getQuote(parsed.accept, parsed.required, parsed.priceUsd) };
+  return {
+    ...parsed,
+    offer: parsed.accept,
+    quote: getQuote(parsed.accept, parsed.required, parsed.priceUsd),
+  };
 }
 
 function createPaymentClient(key) {
@@ -235,8 +239,14 @@ async function saveApiKey(key) {
   const directory = dirname(API_KEY_PATH);
   await mkdir(directory, { recursive: true, mode: 0o700 });
   await chmod(directory, 0o700);
-  await writeFile(API_KEY_PATH, `${key}\n`, { mode: 0o600 });
+  try {
+    await writeFile(API_KEY_PATH, `${key}\n`, { mode: 0o600, flag: "wx" });
+  } catch (error) {
+    if (error.code === "EEXIST") return false;
+    throw error;
+  }
   await chmod(API_KEY_PATH, 0o600);
+  return true;
 }
 
 function jobText(body) {
@@ -266,7 +276,7 @@ async function runJob(args) {
     throw new Error("confirm is required and must be a boolean.");
   }
   const payload = validate(args);
-  const { quote, required, priceUsd } = await quoteRequest(payload);
+  const { quote, required, offer, priceUsd } = await quoteRequest(payload);
   const quotedText = quoteText(quote);
   if (args.confirm !== true) {
     return `${quotedText}\nNothing was paid. Set confirm: true to proceed.`;
@@ -293,7 +303,7 @@ async function runJob(args) {
     for (let attempt = 0; attempt < 2; attempt += 1) {
       let payment;
       try {
-        payment = await client.createPaymentPayload(required);
+        payment = await client.createPaymentPayload({ ...required, accepts: [offer] });
       } catch {
         throw new Error(paidRequestAttempted
           ? "The idempotent payment retry could not be signed."
@@ -334,10 +344,11 @@ async function runJob(args) {
     throw new Error(errorText(response.status, body));
   }
   let keySaved = false;
+  let existingKeyKept = false;
   if (typeof body.api_key === "string" && body.api_key) {
     try {
-      await saveApiKey(body.api_key);
-      keySaved = true;
+      keySaved = await saveApiKey(body.api_key);
+      existingKeyKept = !keySaved;
     } catch {
       keySaved = false;
     }
@@ -345,7 +356,9 @@ async function runJob(args) {
   const saveNote = keySaved
     ? `API key saved to ${API_KEY_PATH}; it is not shown here.`
     : typeof body.api_key === "string"
-      ? "The API key could not be saved; it is not shown here and cannot be recovered."
+      ? existingKeyKept
+        ? "An API key was already saved and was kept unchanged; this job's one-time API key was not saved and cannot be recovered."
+        : "The API key could not be saved; it is not shown here and cannot be recovered."
       : "No API key was issued.";
   return `${jobText(body)}\n${saveNote}`;
 }

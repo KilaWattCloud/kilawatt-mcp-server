@@ -61,7 +61,13 @@ globalThis.fetch = async (input, init = {}) => {
         maxTimeoutSeconds: 60,
         extra: { name: "USD Coin", version: "2" },
     };
-    const required = { x402Version: legacyProtocol ? 1 : 2, accepts: [accept] };
+    const accepts = process.env.X402_TEST_MULTI_ACCEPTS === "1" && !legacyProtocol
+      ? [
+        { ...accept, network: "eip155:1", amount: "999999999" },
+        accept,
+      ]
+      : [accept];
+    const required = { x402Version: legacyProtocol ? 1 : 2, accepts };
     return new Response(JSON.stringify(required), {
       status: 402,
       headers: legacyProtocol ? {} : {
