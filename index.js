@@ -19,6 +19,7 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
+import { callX402Tool, X402_TOOLS } from "./x402.js";
 
 const { version } = JSON.parse(
   readFileSync(new URL("./package.json", import.meta.url), "utf8"),
@@ -289,11 +290,14 @@ const server = new Server(
 );
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
-  tools: [DEPLOY_GPU_NODE],
+  tools: [DEPLOY_GPU_NODE, ...X402_TOOLS],
 }));
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   if (request.params.name !== DEPLOY_GPU_NODE.name) {
+    if (X402_TOOLS.some((tool) => tool.name === request.params.name)) {
+      return callX402Tool(request.params.name, request.params.arguments ?? {});
+    }
     return {
       isError: true,
       content: [{ type: "text", text: `Unknown tool: ${request.params.name}` }],
@@ -316,7 +320,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 });
 
 async function main() {
-  apiKey();
   await server.connect(new StdioServerTransport());
   console.error("kilawatt-mcp-server ready on stdio");
 }
