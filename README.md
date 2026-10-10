@@ -52,6 +52,8 @@ Add this configuration to your MCP client settings:
 
 Replace `kw_live_YOUR_KEY_HERE` with your Kilawatt API key.
 
+Using goose? See [GOOSE.md](GOOSE.md).
+
 ## Running the Server
 
 Start the MCP server:
