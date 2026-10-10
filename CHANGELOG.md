@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Restored index.js after an accidental truncation in bccae7b; added startup test and bin entry
 
+## [0.2.0] - 2026-10-10
+
+### Added
+- x402 quote, pay-per-job, and job-status MCP tools using Base USDC
+- Local payment safeguards, spend caps, and secure storage for the one-time API key
+
 ## [0.1.2] - 2026-09-07
 
 ### Added

@@ -241,7 +241,7 @@ async function saveApiKey(key) {
 
 function jobText(body) {
   const payment = body.payment ?? {};
-  return [
+  const text = [
     `Job ID: ${body.job_id}`,
     `Status: ${body.status}`,
     `Provider: ${body.provider}`,
@@ -253,6 +253,9 @@ function jobText(body) {
     `Amount: $${Number(payment.amount_usd).toFixed(6)} USD`,
     `Payer: ${payment.payer}`,
   ].join("\n");
+  return typeof body.api_key === "string" && body.api_key
+    ? text.split(body.api_key).join("[redacted]")
+    : text;
 }
 
 async function runJob(args) {
@@ -285,11 +288,20 @@ async function runJob(args) {
   const idempotencyKey = randomUUID();
   sessionSpentUsd += priceUsd;
   let response;
+  let paidRequestAttempted = false;
   try {
     for (let attempt = 0; attempt < 2; attempt += 1) {
-      const payment = await client.createPaymentPayload(required);
+      let payment;
+      try {
+        payment = await client.createPaymentPayload(required);
+      } catch {
+        throw new Error(paidRequestAttempted
+          ? "The idempotent payment retry could not be signed."
+          : "Could not create the payment authorization. No payment request was sent.");
+      }
       const paymentHeaders = httpClient.encodePaymentSignatureHeader(payment);
       try {
+        paidRequestAttempted = true;
         response = await fetch(endpoint(), {
           method: "POST",
           headers: {
@@ -306,13 +318,19 @@ async function runJob(args) {
         if (attempt === 1) throw new Error("network failure");
       }
     }
-  } catch {
+  } catch (error) {
+    if (!paidRequestAttempted) sessionSpentUsd -= priceUsd;
+    if (error.message === "Could not create the payment authorization. No payment request was sent.") {
+      throw error;
+    }
     throw new Error("The paid request could not be confirmed after one idempotent retry. Check job status before trying again.");
   }
 
   const body = await readBody(response);
   if (!response.ok) {
-    sessionSpentUsd -= priceUsd;
+    if ([400, 402, 403, 409, 415, 429, 503].includes(response.status)) {
+      sessionSpentUsd -= priceUsd;
+    }
     throw new Error(errorText(response.status, body));
   }
   let keySaved = false;
@@ -360,7 +378,8 @@ async function jobStatus(args) {
   for (const field of ["ready_at", "ended_at", "runtime_seconds"]) {
     if (body[field] !== undefined) result[field] = body[field];
   }
-  return JSON.stringify(result);
+  const text = JSON.stringify(result);
+  return text.split(key).join("[redacted]");
 }
 
 function redact(text) {

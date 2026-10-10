@@ -117,7 +117,7 @@ try {
   }
   const legacy = await server.call("deploy_gpu_node", { dry_run: true });
   assert.match(legacy.result.content[0].text, /DRY RUN/);
-  assert.equal(initialized.result.serverInfo.version, "0.1.4");
+  assert.equal(initialized.result.serverInfo.version, "0.2.0");
   assert.match(server.stderr, /ready on stdio/);
   console.log("MCP startup, tools/list, and deploy_gpu_node behavior passed.");
 } finally {
@@ -170,6 +170,20 @@ for (const mode of [
 }
 
 {
+  const { server: maxUsdServer, directory, tracePath } = await startMock({
+    X402_TEST_AMOUNT: "20000",
+  });
+  try {
+    const result = await maxUsdServer.call("x402_run_job", { max_usd: 0.01, confirm: true });
+    assert.match(result.result.content[0].text, /exceeds max_usd/);
+    assert.equal((await trace(tracePath)).filter((entry) => entry.paid).length, 0);
+  } finally {
+    await maxUsdServer.stop();
+    await rm(directory, { recursive: true, force: true });
+  }
+}
+
+{
   const { server: noPrivateKey, directory, tracePath } = await startMock();
   try {
     const result = await noPrivateKey.call("x402_run_job", runArgs);
@@ -195,16 +209,24 @@ for (const mode of [
     assert.match(output, /API key saved to/);
     assert.ok(!output.includes(apiKey));
     assert.ok(!output.includes(privateKey));
+    const paidTrace = (await trace(tracePath)).find((entry) => entry.paid);
+    assert.equal(paidTrace.version, "2");
+    assert.match(paidTrace.userAgent, /kilawatt-mcp-server\/0\.2\.0 \(x402\)/);
+    assert.equal(paidTrace.paymentHeaderName, "PAYMENT-SIGNATURE");
+    assert.ok(paidTrace.idempotencyKey);
+    assert.ok(paidTrace.paymentHeader);
 
     const keyPath = resolve(directory, ".config", "kilawatt", "x402-api-key");
     const stat = await (await import("node:fs/promises")).stat(keyPath);
     assert.equal(stat.mode & 0o777, 0o600);
+    const configStat = await (await import("node:fs/promises")).stat(resolve(directory, ".config", "kilawatt"));
+    assert.equal(configStat.mode & 0o777, 0o700);
     assert.equal((await readFile(keyPath, "utf8")).trim(), apiKey);
 
     const status = await payingServer.call("x402_job_status", { job_id: "test-job" });
     assert.match(status.result.content[0].text, /"status":"running"/);
     assert.match(status.result.content[0].text, /"runtime_seconds":12/);
-    assert.ok(!(await trace(tracePath)).find((entry) => entry.kind === "status").authorizationMatches === false);
+    assert.equal((await trace(tracePath)).find((entry) => entry.kind === "status").authorizationMatches, true);
 
     const overSession = await payingServer.call("x402_run_job", runArgs);
     assert.match(overSession.result.content[0].text, /remaining session cap/);
@@ -215,8 +237,49 @@ for (const mode of [
   }
 }
 
+{
+  const { server: legacyProtocol, directory, tracePath } = await startMock({
+    KILAWATT_X402_PRIVATE_KEY: privateKey,
+    X402_TEST_V1: "1",
+  });
+  try {
+    const result = await legacyProtocol.call("x402_run_job", runArgs);
+    assert.match(result.result.content[0].text, /Job ID: test-job/);
+    const entries = await trace(tracePath);
+    assert.equal(entries[0].paid, false);
+    assert.equal(entries[0].version, "2");
+    assert.equal(entries[1].paymentHeaderName, "X-PAYMENT");
+    assert.ok(entries[1].paymentHeader);
+    assert.equal(entries[1].idempotencyKey.length, 36);
+  } finally {
+    await legacyProtocol.stop();
+    await rm(directory, { recursive: true, force: true });
+  }
+}
+
+{
+  const { server: retryServer, directory, tracePath } = await startMock({
+    KILAWATT_X402_PRIVATE_KEY: privateKey,
+    X402_TEST_DROP_FIRST_PAID: "1",
+  });
+  try {
+    const result = await retryServer.call("x402_run_job", runArgs);
+    assert.match(result.result.content[0].text, /Job ID: test-job/);
+    const paid = (await trace(tracePath)).filter((entry) => entry.paid);
+    assert.equal(paid.length, 2);
+    assert.equal(paid[0].idempotencyKey, paid[1].idempotencyKey);
+    assert.notEqual(paid[0].paymentHeader, paid[1].paymentHeader);
+  } finally {
+    await retryServer.stop();
+    await rm(directory, { recursive: true, force: true });
+  }
+}
+
 for (const [status, code, expected] of [
+  [400, "invalid_json", /Invalid JSON request/],
   [400, "unknown_gpu_type", /Valid GPU types/],
+  [400, "size_not_available", /size is not available/],
+  [400, "wrong_payment_header", /payment header is invalid/],
   [402, "price_changed", /price changed/],
   [402, "insufficient_funds_or_invalid_signature", /funds or signature/],
   [403, "sanctions_screening", /sanctions screening/],

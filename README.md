@@ -6,7 +6,7 @@
 
 Model Context Protocol (MCP) server for Kilawatt Cloud GPU provisioning. Enables Cursor, Claude Desktop, and other AI agents to programmatically request and manage real GPU compute nodes.
 
-**This server calls the real Kilawatt gateway.** Every response is an actual HTTP result from `https://www.kilawattcloud.dev/api/public/v1`. There are no mock or fabricated responses.
+**This server calls the real Kilawatt gateways.** Every response is an actual HTTP result from the Kilawatt public API or the x402 endpoint. There are no fabricated responses.
 
 ## Installation
 
@@ -18,7 +18,7 @@ npx -y kilawatt-mcp-server
 
 ## Configuration
 
-Set your Kilawatt API key as an environment variable before running the server:
+Set your Kilawatt API key to use `deploy_gpu_node`. It is not required to start the server or use the x402 tools:
 
 ```bash
 export KILAWATT_API_KEY=kw_live_YOUR_KEY_HERE
@@ -50,7 +50,7 @@ Add this configuration to your MCP client settings:
 }
 ```
 
-Replace `kw_live_YOUR_KEY_HERE` with your Kilawatt API key.
+Replace `kw_live_YOUR_KEY_HERE` with your Kilawatt API key when using `deploy_gpu_node`. For x402-only use, omit `KILAWATT_API_KEY`.
 
 Using goose? See [GOOSE.md](GOOSE.md).
 
@@ -116,6 +116,27 @@ Provision real GPU compute on Kilawatt Cloud. This immediately charges the calle
 ```
 
 Tool results are formatted from the real HTTP response returned by the Kilawatt gateway.
+
+### x402 tools
+
+The x402 tools let you request capacity with Base USDC without a Kilawatt account or API key:
+
+- `x402_quote` checks the current price and payment details without paying.
+- `x402_run_job` quotes and pays for one GPU job. It requires `confirm: true` and a positive `max_usd`; payment is refused above that amount or either configured spend cap.
+- `x402_job_status` checks a paid job using the API key saved locally by `x402_run_job`.
+
+The server must be able to read the following environment variables when you use x402 payments:
+
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `KILAWATT_X402_PRIVATE_KEY` | Base-compatible wallet key, needed only to pay with `x402_run_job` | Not set |
+| `KILAWATT_X402_MAX_USD_PER_JOB` | Maximum price for one paid job | `0.25` |
+| `KILAWATT_X402_MAX_USD_PER_SESSION` | Maximum cumulative spend in this server process | `1.00` |
+| `KILAWATT_X402_URL` | Override the x402 execution endpoint | Kilawatt production endpoint |
+
+The returned API key is stored at `~/.config/kilawatt/x402-api-key` with restrictive file permissions. It is never shown in tool output. Existing `deploy_gpu_node` still requires `KILAWATT_API_KEY`.
+
+**Use a separate wallet with a small balance for x402, and keep its private key out of prompts and shared configuration.** The payer does not need ETH; the facilitator submits the transaction.
 
 ## Error Handling
 

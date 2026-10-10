@@ -6,22 +6,50 @@
     "url": "https://github.com/KilaWattCloud/kilawatt-mcp-server",
     "source": "github"
   },
-  "version": "0.1.4",
+  "version": "0.2.0",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "kilawatt-mcp-server",
-      "version": "0.1.4",
+      "version": "0.2.0",
       "transport": {
         "type": "stdio"
       },
       "environmentVariables": [
         {
           "description": "Your API key for the service",
-          "isRequired": true,
+          "isRequired": false,
           "format": "string",
           "isSecret": true,
           "name": "KILAWATT_API_KEY"
+        },
+        {
+          "description": "Wallet private key for paying for x402 jobs",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": true,
+          "name": "KILAWATT_X402_PRIVATE_KEY"
+        },
+        {
+          "description": "Maximum USD spend per x402 job (default 0.25)",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false,
+          "name": "KILAWATT_X402_MAX_USD_PER_JOB"
+        },
+        {
+          "description": "Maximum USD spend per server session (default 1.00)",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false,
+          "name": "KILAWATT_X402_MAX_USD_PER_SESSION"
+        },
+        {
+          "description": "Optional x402 execution endpoint override",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false,
+          "name": "KILAWATT_X402_URL"
         }
       ]
     }
