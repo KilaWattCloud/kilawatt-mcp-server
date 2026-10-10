@@ -2,14 +2,13 @@
 /**
  * kilawatt-mcp-server
  *
- * MCP server exposing Kilawatt Cloud GPU provisioning. This talks to the REAL
- * Kilawatt public gateway — there are no mock or fabricated responses anywhere
- * in this file. Every result returned to the model comes from an actual HTTP
- * response from https://www.kilawattcloud.dev/api/public/v1.
+ * MCP server exposing Kilawatt Cloud GPU provisioning. It talks to the real
+ * Kilawatt public and x402 gateways; results come from their HTTP responses.
  *
  * Environment:
- *   KILAWATT_API_KEY   required, format kw_live_...
- *   KILAWATT_BASE_URL  optional, defaults to the production gateway
+ *   KILAWATT_API_KEY          needed for deploy_gpu_node, format kw_live_...
+ *   KILAWATT_BASE_URL         optional, defaults to the production gateway
+ *   KILAWATT_X402_PRIVATE_KEY needed only to pay for x402 jobs
  */
 
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
@@ -19,6 +18,7 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
+import { callX402Tool, X402_TOOLS } from "./x402.js";
 
 const { version } = JSON.parse(
   readFileSync(new URL("./package.json", import.meta.url), "utf8"),
@@ -289,11 +289,14 @@ const server = new Server(
 );
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
-  tools: [DEPLOY_GPU_NODE],
+  tools: [DEPLOY_GPU_NODE, ...X402_TOOLS],
 }));
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   if (request.params.name !== DEPLOY_GPU_NODE.name) {
+    if (X402_TOOLS.some((tool) => tool.name === request.params.name)) {
+      return callX402Tool(request.params.name, request.params.arguments ?? {});
+    }
     return {
       isError: true,
       content: [{ type: "text", text: `Unknown tool: ${request.params.name}` }],
@@ -316,7 +319,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 });
 
 async function main() {
-  apiKey();
   await server.connect(new StdioServerTransport());
   console.error("kilawatt-mcp-server ready on stdio");
 }
