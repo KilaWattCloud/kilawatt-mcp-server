@@ -2,13 +2,15 @@ import { chmod, mkdir, readFile, writeFile } from "node:fs/promises";
 import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
-import { randomUUID } from "node:crypto";
+import { randomUUID, webcrypto } from "node:crypto";
 import { x402Client, x402HTTPClient } from "@x402/core/client";
 import { registerExactEvmScheme } from "@x402/evm/exact/client";
 import { privateKeyToAccount } from "viem/accounts";
 import { formatUnits } from "viem";
 
 const DEFAULT_URL = "https://www.kilawattcloud.dev/api/public/x402/exec";
+if (!globalThis.crypto) globalThis.crypto = webcrypto;
+
 const { version } = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8"));
 const JOBS_URL = "https://www.kilawattcloud.dev/api/public/v1/jobs";
 const NETWORK = "eip155:8453";
