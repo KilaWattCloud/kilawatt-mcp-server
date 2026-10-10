@@ -46,7 +46,7 @@ goose session --with-extension "npx -y kilawatt-mcp-server"
 
 Ask goose:
 
-&gt; Use Kilawatt to do a dry run for 1 nvidia-h100 GPU for 600 seconds and tell me the price and routing.
+> Use Kilawatt to do a dry run for 1 nvidia-h100 GPU for 600 seconds and tell me the price and routing.
 
 A dry run does not provision or charge anything. When you are ready to provision, ask again without the dry run.
 
