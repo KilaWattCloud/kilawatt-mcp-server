@@ -2,7 +2,7 @@
 
 Kilawatt's MCP server works as a goose extension. goose runs it as a local stdio extension, so no code changes are needed.
 
-Status: verified on October 10, 2026. The extension ran inside goose against the live Kilawatt x402 endpoint: 15 paid jobs on Base (USDC, $0.61 total, a Kilawatt-owned test wallet), with each settlement checked on-chain. In the first batch of five, three jobs ran and two never became ready and were refunded automatically as account credit (not on-chain). In the second batch of ten, all ten ran. This was our own testing, not outside usage, and it is not an endorsement by Block or the goose project. If anything differs on your goose version, please open an issue.
+Status: verified on October 10, 2026. The extension ran inside goose against the live Kilawatt x402 endpoint: 15 paid jobs on Base (USDC, $0.61 total, a Kilawatt-owned test wallet), with each payment cross-checked against Basescan transaction records. In the first batch of five, three jobs ran and two never became ready and were refunded automatically as account credit (not on-chain). In the second batch of ten, all ten ran. This was our own testing, not outside usage, and it is not an endorsement by Block or the goose project. If anything differs on your goose version, please open an issue.
 
 ## What the extension does
 
