@@ -1,3 +1,4 @@
+# KILAWATT_API_KEY is for deploy_gpu_node. The x402 private key is only for x402 payments.
 extensions:
   kilawatt:
     name: Kilawatt Cloud

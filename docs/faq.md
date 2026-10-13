@@ -6,7 +6,7 @@
 
 ## Why use a separate small wallet?
 
-`x402_run_job` uses the configured wallet to authorize payments. A separate wallet with only a small amount set aside for testing limits the funds exposed if a key is misconfigured or misused. Never use your main wallet for testing, and do not put private keys in prompts or shared configuration.
+`x402_run_job` uses the configured wallet to authorize payments. A separate small wallet limits exposure if a key is misconfigured or misused. Never use your main wallet for testing, and do not put private keys in prompts or shared configuration. For x402 users: Check that your Base wallet has enough USDC and that your spend caps allow the amount.
 
 ## What does `dry_run` do?
 

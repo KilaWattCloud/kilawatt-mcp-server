@@ -77,7 +77,8 @@ A dry run does not provision or charge anything. When you are ready to provision
 ## Safety notes
 
 - `deploy_gpu_node` without `dry_run` charges the account tied to the key right away and starts a real machine.
-- Use a separate wallet with a small balance for x402 payments. The payer needs USDC on Base but does not need ETH; the facilitator submits the transaction.
+- Use a separate small wallet for x402 payments. The payer needs USDC on Base but does not need ETH; the facilitator submits the transaction.
+- For x402 users: Check that your Base wallet has enough USDC and that your spend caps allow the amount.
 - Set `KILAWATT_X402_PRIVATE_KEY` only when paying. Keep it out of prompts and shared configs.
 - Use a key with a small spend cap while testing, and keep goose in an approval mode that asks before running tools.
 - Keep the key out of chat messages and shared configs.

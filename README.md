@@ -79,7 +79,7 @@ The server listens on stdio for MCP requests from your agent.
 
 ### `deploy_gpu_node`
 
-Provision real GPU compute on Kilawatt Cloud. This immediately charges the caller's Kilawatt wallet and starts an actual machine. Set `dry_run: true` to validate pricing, routing, and account balance without provisioning.
+Provision real GPU compute on Kilawatt Cloud. This starts an actual machine. Set `dry_run: true` to check pricing and routing without provisioning or charging.
 
 **Parameters:**
 
@@ -139,7 +139,9 @@ The server must be able to read the following environment variables when you use
 
 The returned API key is stored at `~/.config/kilawatt/x402-api-key` with restrictive file permissions. It is never shown in tool output. Existing `deploy_gpu_node` still requires `KILAWATT_API_KEY`.
 
-**Use a separate wallet with a small balance for x402, and keep its private key out of prompts and shared configuration.** The payer does not need ETH; the facilitator submits the transaction.
+**Use a separate small wallet for x402, and keep its private key out of prompts and shared configuration.** The payer does not need ETH; the facilitator submits the transaction.
+
+For x402 users: Check that your Base wallet has enough USDC and that your spend caps allow the amount.
 
 ## Error Handling
 
@@ -147,7 +149,7 @@ All errors are descriptive and indicate whether anything was provisioned or char
 
 - **400 Bad Request**: Invalid arguments (e.g., `card_count` > 64). Fix and retry.
 - **401 Unauthorized**: API key missing, malformed, or revoked. Issue a new key in your Kilawatt account or contact hello@kilawattcloud.dev.
-- **402 Payment Required**: Insufficient balance or spend cap. Top up in the Kilawatt wallet.
+- **402 Payment Required**: the payment was not accepted. Check your balance and spend caps, then retry.
 - **429 Rate Limited**: Concurrency or rate limit hit. Retry after a delay.
 - **503 No Capacity**: No nodes available matching your criteria. Try a different `gpu_type` or smaller `card_count`.
 - **Timeout**: Gateway did not respond within 60 seconds. No compute was provisioned; retry if needed.
