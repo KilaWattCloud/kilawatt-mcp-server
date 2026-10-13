@@ -31,6 +31,11 @@
   "bugs": {
     "url": "https://github.com/KilaWattCloud/kilawatt-mcp-server/issues"
   },
+  "mcpName": "io.github.KilaWattCloud/kilawatt-mcp-server",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KilaWattCloud/kilawatt-mcp-server"
+  },
   "scripts": {
     "start": "node index.js",
     "test": "node test/server.test.js",
