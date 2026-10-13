@@ -107,6 +107,80 @@ async function trace(path) {
 
 const runArgs = { max_usd: 0.25, confirm: true };
 
+{
+  const { server: endpointServer, directory, tracePath } = await startMock({
+    KILAWATT_API_KEY: "kw_live_test_placeholder",
+    KILAWATT_BASE_URL: "https://gateway.override.test/custom/",
+  });
+  try {
+    const result = await endpointServer.call("deploy_gpu_node", { dry_run: true });
+    assert.match(result.result.content[0].text, /DRY RUN/);
+    const request = (await trace(tracePath)).find((entry) => entry.kind === "legacy");
+    assert.equal(request.url, "https://gateway.override.test/custom/agent/exec");
+  } finally {
+    await endpointServer.stop();
+    await rm(directory, { recursive: true, force: true });
+  }
+}
+
+{
+  const { server: confirmationServer, directory, tracePath } = await startMock();
+  try {
+    const missingConfirmation = await confirmationServer.call("x402_run_job", { max_usd: 0.25 });
+    assert.equal(missingConfirmation.result.isError, true);
+    assert.match(missingConfirmation.result.content[0].text, /confirm is required/);
+    assert.equal((await trace(tracePath)).length, 0);
+
+    const unconfirmed = await confirmationServer.call("x402_run_job", {
+      max_usd: 0.25,
+      confirm: false,
+    });
+    assert.match(unconfirmed.result.content[0].text, /Nothing was paid/);
+    const requests = (await trace(tracePath)).filter((entry) => entry.kind === "x402");
+    assert.equal(requests.length, 1);
+    assert.equal(requests[0].paid, false);
+  } finally {
+    await confirmationServer.stop();
+    await rm(directory, { recursive: true, force: true });
+  }
+}
+
+for (const args of [
+  { confirm: true },
+  { max_usd: 0, confirm: true },
+  { max_usd: -0.01, confirm: true },
+]) {
+  const { server: invalidLimitServer, directory, tracePath } = await startMock();
+  try {
+    const result = await invalidLimitServer.call("x402_run_job", args);
+    assert.equal(result.result.isError, true);
+    assert.match(result.result.content[0].text, /max_usd is required and must be a positive number/);
+    assert.equal((await trace(tracePath)).length, 0);
+  } finally {
+    await invalidLimitServer.stop();
+    await rm(directory, { recursive: true, force: true });
+  }
+}
+
+for (const capName of [
+  "KILAWATT_X402_MAX_USD_PER_JOB",
+  "KILAWATT_X402_MAX_USD_PER_SESSION",
+]) {
+  const { server: cappedServer, directory, tracePath } = await startMock({
+    X402_TEST_AMOUNT: "10000",
+    [capName]: "0.005",
+  });
+  try {
+    const result = await cappedServer.call("x402_run_job", runArgs);
+    assert.match(result.result.content[0].text, /Refused:/);
+    assert.match(result.result.content[0].text, /Nothing was paid/);
+    assert.equal((await trace(tracePath)).filter((entry) => entry.paid).length, 0);
+  } finally {
+    await cappedServer.stop();
+    await rm(directory, { recursive: true, force: true });
+  }
+}
+
 const server = new McpProcess({ KILAWATT_API_KEY: "kw_live_test" }, true);
 try {
   const initialized = await server.initialize();
