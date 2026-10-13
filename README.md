@@ -26,6 +26,10 @@ export KILAWATT_API_KEY=kw_live_YOUR_KEY_HERE
 
 The API key must start with `kw_live_`. API keys are issued through your Kilawatt Cloud account. Contact hello@kilawattcloud.dev for assistance if you don't have access to generate keys yet.
 
+## Endpoint
+
+The default endpoint is Kilawatt Cloud's gateway: `https://www.kilawattcloud.dev/api/public/v1`. Change it with the `KILAWATT_BASE_URL` environment variable.
+
 Optionally, override the gateway URL:
 
 ```bash

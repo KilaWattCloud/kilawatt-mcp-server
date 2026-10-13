@@ -1,0 +1,17 @@
+extensions:
+  kilawatt:
+    name: Kilawatt Cloud
+    type: stdio
+    cmd: npx
+    args:
+      - -y
+      - kilawatt-mcp-server
+    envs:
+      KILAWATT_API_KEY: "kw_live_REPLACE_WITH_YOUR_API_KEY"
+      KILAWATT_X402_PRIVATE_KEY: "0xREPLACE_WITH_YOUR_WALLET_PRIVATE_KEY"
+      KILAWATT_X402_MAX_USD_PER_JOB: "0.25"
+      KILAWATT_X402_MAX_USD_PER_SESSION: "1.00"
+      KILAWATT_X402_URL: "https://www.kilawattcloud.dev/api/public/x402/exec"
+      KILAWATT_BASE_URL: "https://www.kilawattcloud.dev/api/public/v1"
+    enabled: true
+    timeout: 300
