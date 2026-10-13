@@ -1,5 +1,5 @@
 {
   "$schema": "https://glama.ai/glama.json",
+  "description": "Kilawatt Cloud MCP server for requesting GPU compute capacity with account-based and x402 payment options.",
   "maintainers": ["KilaWattCloud"]
 }
-
