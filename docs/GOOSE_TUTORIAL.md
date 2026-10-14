@@ -4,8 +4,7 @@ This walkthrough takes you from nothing to a priced GPU request inside goose, th
 
 Kilawatt Cloud adds one tool to goose, `deploy_gpu_node`. It prices, routes and provisions real GPU capacity. Each call is a real request to the Kilawatt gateway, with no mock responses.
 
-Status note: this setup follows goose's documented extension format. The Kilawatt team has not yet confirmed a full run inside goose itself. If anything differs on your goose version, please open an issue on this repo.
-
+Status note: the Kilawatt team has tested this end to end in goose: a dry run, then 15 paid x402 jobs on Base, with each payment cross-checked against Basescan transaction records. This was internal testing. If anything differs on your goose version, please open an issue on this repo.
 ## What you need
 
 1. goose installed (Desktop app or CLI).
