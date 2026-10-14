@@ -1,13 +1,13 @@
 {
   "name": "kilawatt-mcp-server",
-  "version": "0.2.0",
+"version": "0.2.1",
   "description": "Kilawatt Cloud MCP server for requesting GPU compute capacity with account-based and x402 payment options.",
   "main": "index.js",
   "bin": {
     "kilawatt-mcp-server": "index.js"
   },
   "files": [
-    "index.js",
+    "index.js","x402.js",
     "README.md",
     "LICENSE",
     "server.json"
