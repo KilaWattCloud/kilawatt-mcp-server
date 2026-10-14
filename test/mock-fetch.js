@@ -12,7 +12,7 @@ globalThis.fetch = async (input, init = {}) => {
   const url = String(input);
   const headers = new Headers(init.headers);
   if (url.includes("/agent/exec")) {
-    trace({ kind: "legacy", authorization: headers.has("authorization") });
+    trace({ kind: "legacy", url, authorization: headers.has("authorization") });
     return Response.json({
       status: "dry_run",
       authorized: true,

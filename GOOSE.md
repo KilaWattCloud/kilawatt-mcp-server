@@ -2,7 +2,11 @@
 
 Kilawatt's MCP server works as a goose extension. goose runs it as a local stdio extension, so no code changes are needed.
 
-Status: verified on October 10, 2026. The extension ran inside goose against the live Kilawatt x402 endpoint: 15 paid jobs on Base (USDC, $0.61 total, a Kilawatt-owned test wallet), with each payment cross-checked against Basescan transaction records. In the first batch of five, three jobs ran and two never became ready and were refunded automatically as account credit (not on-chain). In the second batch of ten, all ten ran. This was our own testing, not outside usage, and it is not an endorsement by Block or the goose project. If anything differs on your goose version, please open an issue.
+Tested end to end in goose by the Kilawatt team: a dry run, then 15 paid x402 jobs on Base. Each payment was cross-checked against Basescan transaction records. Those runs were done by the Kilawatt team, so treat them as internal testing. If anything differs on your goose version, please open an issue.
+
+## Endpoint
+
+The default endpoint is Kilawatt Cloud's gateway: `https://www.kilawattcloud.dev/api/public/v1`. Change it with the `KILAWATT_BASE_URL` environment variable.
 
 ## What the extension does
 
@@ -66,14 +70,15 @@ goose session --with-extension "npx -y kilawatt-mcp-server"
 
 Ask goose:
 
-> Use Kilawatt to do a dry run for 1 nvidia-h100 GPU for 600 seconds and tell me the price and routing.
+> Use Kilawatt to do a dry run for 1 GPU for 600 seconds and tell me the price and routing.
 
 A dry run does not provision or charge anything. When you are ready to provision, ask again without the dry run.
 
 ## Safety notes
 
 - `deploy_gpu_node` without `dry_run` charges the account tied to the key right away and starts a real machine.
-- Use a separate wallet with a small balance for x402 payments. The payer needs USDC on Base but does not need ETH; the facilitator submits the transaction.
+- Use a separate small wallet for x402 payments. The payer needs USDC on Base but does not need ETH; the facilitator submits the transaction.
+- For x402 users: Check that your Base wallet has enough USDC and that your spend caps allow the amount.
 - Set `KILAWATT_X402_PRIVATE_KEY` only when paying. Keep it out of prompts and shared configs.
 - Use a key with a small spend cap while testing, and keep goose in an approval mode that asks before running tools.
 - Keep the key out of chat messages and shared configs.
@@ -83,3 +88,8 @@ A dry run does not provision or charge anything. When you are ready to provision
 - Server: https://github.com/KilaWattCloud/kilawatt-mcp-server
 - Kilawatt Cloud: https://kilawattcloud.dev
 - goose: https://goose-docs.ai
+
+## Learn more
+
+- Kilawatt Cloud: https://www.kilawattcloud.dev/super-intelligence
+- x402 compute profile specification repository: https://github.com/KilaWattCloud/x402-compute-profile

@@ -1,7 +1,7 @@
 {
   "name": "kilawatt-mcp-server",
   "version": "0.2.0",
-  "description": "Kilawatt Cloud MCP Server for AI Agent GPU Orchestration",
+  "description": "Kilawatt Cloud MCP server for requesting GPU compute capacity with account-based and x402 payment options.",
   "main": "index.js",
   "bin": {
     "kilawatt-mcp-server": "index.js"
@@ -18,11 +18,14 @@
     "node": ">=18"
   },
   "keywords": [
+    "goose",
     "mcp",
-    "gpu",
     "x402",
-    "ai-agents",
-    "orchestration"
+    "gpu",
+    "usdc",
+    "base",
+    "agent-payments",
+    "gpu-compute"
   ],
   "homepage": "https://github.com/KilaWattCloud/kilawatt-mcp-server#readme",
   "bugs": {

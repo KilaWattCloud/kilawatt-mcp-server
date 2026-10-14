@@ -1,4 +1,5 @@
-# kilawatt-mcp-server
+# Kilawatt Cloud provides GPU compute capacity through an MCP server.
+The default endpoint is Kilawatt Cloud's gateway: `https://www.kilawattcloud.dev/api/public/v1`.
 
 [![Build Status](https://github.com/KilaWattCloud/kilawatt-mcp-server/workflows/Test/badge.svg)](https://github.com/KilaWattCloud/kilawatt-mcp-server/actions)
 [![npm version](https://img.shields.io/npm/v/kilawatt-mcp-server)](https://www.npmjs.com/package/kilawatt-mcp-server)
@@ -7,6 +8,16 @@
 Model Context Protocol (MCP) server for Kilawatt Cloud GPU provisioning. Enables Cursor, Claude Desktop, and other AI agents to programmatically request and manage real GPU compute nodes.
 
 **This server calls the real Kilawatt gateways.** Every response is an actual HTTP result from the Kilawatt public API or the x402 endpoint. There are no fabricated responses.
+
+## Works with
+
+- goose
+- Claude Desktop
+- Cursor
+
+## Endpoint
+
+The default endpoint is Kilawatt Cloud's gateway: `https://www.kilawattcloud.dev/api/public/v1`. Change it with the `KILAWATT_BASE_URL` environment variable.
 
 ## Installation
 
@@ -25,12 +36,6 @@ export KILAWATT_API_KEY=kw_live_YOUR_KEY_HERE
 ```
 
 The API key must start with `kw_live_`. API keys are issued through your Kilawatt Cloud account. Contact hello@kilawattcloud.dev for assistance if you don't have access to generate keys yet.
-
-Optionally, override the gateway URL:
-
-```bash
-export KILAWATT_BASE_URL=https://www.kilawattcloud.dev/api/public/v1
-```
 
 ## Use with Claude Desktop / Cursor
 
@@ -74,25 +79,24 @@ The server listens on stdio for MCP requests from your agent.
 
 ### `deploy_gpu_node`
 
-Provision real GPU compute on Kilawatt Cloud. This immediately charges the caller's Kilawatt wallet and starts an actual machine. Set `dry_run: true` to validate pricing, routing, and account balance without provisioning.
+Provision real GPU compute on Kilawatt Cloud. This starts an actual machine. Set `dry_run: true` to check pricing and routing without provisioning or charging.
 
 **Parameters:**
 
 | Parameter | Type | Required | Default | Range | Description |
 |-----------|------|----------|---------|-------|-------------|
-| `gpu_type` | string | No | `"nvidia-h100"` | N/A | GPU model identifier, e.g. `nvidia-h100`, `nvidia-h200`, `nvidia-b200` |
+| `gpu_type` | string | No | server default | N/A | GPU model identifier supported by the endpoint |
 | `card_count` | integer | No | `1` | 1–64 | Number of GPUs to provision |
-| `duration_seconds` | number | No | `600` | 1–86400 | How long the node is needed, in seconds. Billed up front. |
+| `duration_seconds` | number | No | `600` | 1-86400 | How long the node is needed, in seconds. Billed up front. |
 | `routing_policy` | string | No | `"lowest_cost"` | `lowest_cost`, `lowest_latency`, `zero_quota` | How the smart order router picks a node |
 | `dry_run` | boolean | No | `false` | N/A | Price and pre-authorize only. Returns cost estimate and routing order without provisioning or charging. |
 
-**Example: Deploy 4 H100 GPUs for 1 hour at lowest cost**
+**Example: Deploy 4 GPUs for 1 hour at lowest cost**
 
 ```javascript
 {
   "name": "deploy_gpu_node",
   "arguments": {
-    "gpu_type": "nvidia-h100",
     "card_count": 4,
     "duration_seconds": 3600,
     "routing_policy": "lowest_cost",
@@ -107,7 +111,6 @@ Provision real GPU compute on Kilawatt Cloud. This immediately charges the calle
 {
   "name": "deploy_gpu_node",
   "arguments": {
-    "gpu_type": "nvidia-b200",
     "card_count": 2,
     "duration_seconds": 1800,
     "dry_run": true
@@ -136,7 +139,9 @@ The server must be able to read the following environment variables when you use
 
 The returned API key is stored at `~/.config/kilawatt/x402-api-key` with restrictive file permissions. It is never shown in tool output. Existing `deploy_gpu_node` still requires `KILAWATT_API_KEY`.
 
-**Use a separate wallet with a small balance for x402, and keep its private key out of prompts and shared configuration.** The payer does not need ETH; the facilitator submits the transaction.
+**Use a separate small wallet for x402, and keep its private key out of prompts and shared configuration.** The payer does not need ETH; the facilitator submits the transaction.
+
+For x402 users: Check that your Base wallet has enough USDC and that your spend caps allow the amount.
 
 ## Error Handling
 
@@ -144,7 +149,7 @@ All errors are descriptive and indicate whether anything was provisioned or char
 
 - **400 Bad Request**: Invalid arguments (e.g., `card_count` > 64). Fix and retry.
 - **401 Unauthorized**: API key missing, malformed, or revoked. Issue a new key in your Kilawatt account or contact hello@kilawattcloud.dev.
-- **402 Payment Required**: Insufficient balance or spend cap. Top up in the Kilawatt wallet.
+- **402 Payment Required**: the payment was not accepted. Check your balance and spend caps, then retry.
 - **429 Rate Limited**: Concurrency or rate limit hit. Retry after a delay.
 - **503 No Capacity**: No nodes available matching your criteria. Try a different `gpu_type` or smaller `card_count`.
 - **Timeout**: Gateway did not respond within 60 seconds. No compute was provisioned; retry if needed.
