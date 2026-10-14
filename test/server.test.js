@@ -191,7 +191,7 @@ try {
   }
   const legacy = await server.call("deploy_gpu_node", { dry_run: true });
   assert.match(legacy.result.content[0].text, /DRY RUN/);
-  assert.equal(initialized.result.serverInfo.version, "0.2.0");
+  assert.equal(initialized.result.serverInfo.version, "0.2.1");
   assert.match(server.stderr, /ready on stdio/);
   console.log("MCP startup, tools/list, and deploy_gpu_node behavior passed.");
 } finally {
@@ -285,7 +285,7 @@ for (const mode of [
     assert.ok(!output.includes(privateKey));
     const paidTrace = (await trace(tracePath)).find((entry) => entry.paid);
     assert.equal(paidTrace.version, "2");
-    assert.match(paidTrace.userAgent, /kilawatt-mcp-server\/0\.2\.0 \(x402\)/);
+    assert.match(paidTrace.userAgent, /kilawatt-mcp-server\/0\.2\.1 \(x402\)/);
     assert.equal(paidTrace.paymentHeaderName, "PAYMENT-SIGNATURE");
     assert.ok(paidTrace.idempotencyKey);
     assert.ok(paidTrace.paymentHeader);
