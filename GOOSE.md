@@ -1,5 +1,6 @@
 # Use Kilawatt Cloud with goose
 
+Step-by-step walkthrough: [docs/GOOSE_TUTORIAL.md](docs/GOOSE_TUTORIAL.md)
 Kilawatt's MCP server works as a goose extension. goose runs it as a local stdio extension, so no code changes are needed.
 
 Tested end to end in goose by the Kilawatt team: a dry run, then 15 paid x402 jobs on Base. Each payment was cross-checked against Basescan transaction records. Those runs were done by the Kilawatt team, so treat them as internal testing. If anything differs on your goose version, please open an issue.
