@@ -8,6 +8,10 @@ Model Context Protocol (MCP) server for Kilawatt Cloud GPU provisioning. Enables
 
 **This server calls the real Kilawatt gateway** — every response is an actual HTTP result from `https://www.kilawattcloud.dev/api/public/v1`. There are no mock or fabricated responses.
 
+## Use with goose
+
+[Follow the goose tutorial](docs/GOOSE_TUTORIAL.md).
+
 ## Installation
 
 Install via npm:
