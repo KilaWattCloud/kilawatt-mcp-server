@@ -15,6 +15,7 @@ Model Context Protocol (MCP) server for Kilawatt Cloud GPU provisioning. Enables
 - Claude Desktop
 - Cursor
 
+- Using goose? Follow the step-by-step guide: [docs/GOOSE_TUTORIAL.md](docs/GOOSE_TUTORIAL.md)
 ## Endpoint
 
 The default endpoint is Kilawatt Cloud's gateway: `https://www.kilawattcloud.dev/api/public/v1`. Change it with the `KILAWATT_BASE_URL` environment variable.
