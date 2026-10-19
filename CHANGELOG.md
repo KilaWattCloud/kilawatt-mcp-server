@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Quote-only examples for LangChain, CrewAI, SkyPilot, a Node.js client and the MCP Python SDK, with examples/README.md and links in the README Works with section
+
 ## [0.2.0] - 2026-10-13
 
 ### Added

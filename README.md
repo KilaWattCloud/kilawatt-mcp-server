@@ -11,11 +11,17 @@ Model Context Protocol (MCP) server for Kilawatt Cloud GPU provisioning. Enables
 
 ## Works with
 
-- goose
+- goose ([step-by-step guide](docs/GOOSE_TUTORIAL.md))
 - Claude Desktop
 - Cursor
+- LangChain and LangGraph ([example](examples/langchain/kilawatt_langchain.py))
+- CrewAI ([example](examples/crewai/kilawatt_crewai.py))
+- SkyPilot ([example](examples/skypilot/price_check_then_launch.py))
+- Node.js client ([example](examples/node-client/))
+- MCP Python SDK ([example](examples/python-sdk/kilawatt_client.py))
 
-- Using goose? Follow the step-by-step guide: [docs/GOOSE_TUTORIAL.md](docs/GOOSE_TUTORIAL.md)
+All examples are quote-only. See [examples/README.md](examples/README.md).
+
 ## Endpoint
 
 The default endpoint is Kilawatt Cloud's gateway: `https://www.kilawattcloud.dev/api/public/v1`. Change it with the `KILAWATT_BASE_URL` environment variable.
