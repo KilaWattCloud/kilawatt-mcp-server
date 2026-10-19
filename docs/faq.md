@@ -14,7 +14,11 @@
 
 ## What can the tools do?
 
-The tools provision compute capacity and report job information. They do not accept or run user code or commands.
+There are four tools: `deploy_gpu_node`, `x402_quote`, `x402_run_job` and `x402_job_status`. They provision compute capacity and report job information. They do not accept or run user code or commands. See the [README tool reference](../README.md#available-tools) for parameters.
+
+## Why do `deploy_gpu_node` and the x402 tools accept different values?
+
+`deploy_gpu_node` takes a free-text `gpu_type`, `card_count` up to 64 and `duration_seconds` from 1. The x402 tools use a fixed `gpu_type` list, `card_count` up to 16 (4 for `nvidia-b200`, 8 for `nvidia-h100`, `nvidia-h200`, `nvidia-a100` and `nvidia-l40s`) and `duration_seconds` from 60. Both accept the same `routing_policy` values: `lowest_cost`, `lowest_latency`, `zero_quota`.
 
 ## How do I change the endpoint?
 
