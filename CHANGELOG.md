@@ -13,8 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.2.1] - 2026-10-13
 
-### Changed
-- Patch release of package metadata and documentation after 0.2.0. The repository history available here is shallow, so no further detail could be confirmed.
+### Fixed
+- Include x402.js in the npm package (PR #10)
 
 ## [0.2.0] - 2026-10-13
 
