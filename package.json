@@ -39,7 +39,8 @@
   "scripts": {
     "start": "node index.js",
     "test": "node test/server.test.js && node test/discovery.test.js",
-    "check": "node --check index.js && node --check test/server.test.js && node --check test/discovery.test.js && npm test"
+    "check": "node --check index.js && node --check test/server.test.js && node --check test/discovery.test.js && node --check scripts/generate-tools-doc.js && npm test && node scripts/generate-tools-doc.js --check",
+    "docs": "node scripts/generate-tools-doc.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
