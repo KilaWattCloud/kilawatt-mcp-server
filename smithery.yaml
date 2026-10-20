@@ -1,0 +1,31 @@
+startCommand:
+  type: stdio
+  commandFunction: |-
+    config => ({
+      command: "npx",
+      args: ["-y", "kilawatt-mcp-server"],
+      env: {
+        ...(config.KILAWATT_API_KEY ? { KILAWATT_API_KEY: config.KILAWATT_API_KEY } : {}),
+        KILAWATT_X402_MAX_USD_PER_JOB: config.KILAWATT_X402_MAX_USD_PER_JOB,
+        KILAWATT_X402_MAX_USD_PER_SESSION: config.KILAWATT_X402_MAX_USD_PER_SESSION
+      }
+    })
+
+configSchema:
+  type: object
+  properties:
+    KILAWATT_API_KEY:
+      type: string
+      description: Optional API key for deploy_gpu_node.
+    KILAWATT_X402_MAX_USD_PER_JOB:
+      type: string
+      default: "0.25"
+      description: Local maximum spend for one x402 job.
+    KILAWATT_X402_MAX_USD_PER_SESSION:
+      type: string
+      default: "1.00"
+      description: Local maximum spend for this server session.
+
+exampleConfig:
+  KILAWATT_X402_MAX_USD_PER_JOB: "0.25"
+  KILAWATT_X402_MAX_USD_PER_SESSION: "1.00"

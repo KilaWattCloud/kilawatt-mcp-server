@@ -24,6 +24,13 @@
           "name": "KILAWATT_API_KEY"
         },
         {
+          "description": "Optional gateway endpoint override",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false,
+          "name": "KILAWATT_BASE_URL"
+        },
+        {
           "description": "Wallet private key for paying for x402 jobs",
           "isRequired": false,
           "format": "string",
