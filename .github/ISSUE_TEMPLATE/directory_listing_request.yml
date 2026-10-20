@@ -1,0 +1,28 @@
+name: Directory listing request
+description: Request a new directory listing
+title: "[Listing]: "
+body:
+  - type: input
+    id: listing_name
+    attributes:
+      label: Listing name
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Listing summary
+      description: Describe the listing and the information it provides.
+    validations:
+      required: true
+  - type: input
+    id: documentation
+    attributes:
+      label: Public documentation URL
+  - type: input
+    id: contact
+    attributes:
+      label: Contact URL
+  - type: markdown
+    attributes:
+      value: Do not include credentials, private keys, or other secrets.

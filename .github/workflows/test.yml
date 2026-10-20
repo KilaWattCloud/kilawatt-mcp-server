@@ -4,7 +4,6 @@ on:
   push:
     branches: [ main ]
   pull_request:
-    branches: [ main ]
 
 jobs:
   build:
@@ -12,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [ 18.x, 20.x ]
+        node-version: [ 18.x, 20.x, 22.x ]
 
     steps:
     - uses: actions/checkout@v4
@@ -23,20 +22,22 @@ jobs:
         node-version: ${{ matrix.node-version }}
     
     - name: Install dependencies
-      run: npm install
-    
+      run: npm ci
+
+    - name: Audit dependencies
+      run: npm audit --audit-level=high
+
     - name: Check syntax and MCP protocol
       run: npm run check
 
-    - name: Test server startup
-      run: |
-        set +e
-        timeout 5s env KILAWATT_API_KEY=kw_live_ci npm start > /tmp/server.log 2>&1
-        status=$?
-        set -e
-        cat /tmp/server.log
-        if [ "$status" -ne 0 ] && [ "$status" -ne 124 ]; then
-          echo "Server startup failed with exit code $status"
-          exit 1
-        fi
-        grep -q "ready on stdio" /tmp/server.log
+    - name: Validate tool inputs
+      run: node test/input-validation.test.js
+
+    - name: Check error output
+      run: node test/security-output.test.js
+
+    - name: Smoke test startup and tool listing
+      run: node test/startup-smoke.test.js
+
+    - name: Dry-run package archive
+      run: npm pack --dry-run
