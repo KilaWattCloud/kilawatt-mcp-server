@@ -18,8 +18,8 @@
 - `KILAWATT_BASE_URL`: Optional gateway endpoint override.
 - `KILAWATT_X402_URL`: Optional x402 endpoint override.
 
-**Repository:** https://github.com/KilaWattCloud/kilawatt-mcp-server  
-**npm:** https://www.npmjs.com/package/kilawatt-mcp-server
+- **Repository:** https://github.com/KilaWattCloud/kilawatt-mcp-server
+- **npm:** https://www.npmjs.com/package/kilawatt-mcp-server
 
 ## mcp.so
 
@@ -39,8 +39,8 @@
 - `KILAWATT_BASE_URL`: Optional gateway endpoint override.
 - `KILAWATT_X402_URL`: Optional x402 endpoint override.
 
-**Repository:** https://github.com/KilaWattCloud/kilawatt-mcp-server  
-**npm:** https://www.npmjs.com/package/kilawatt-mcp-server
+- **Repository:** https://github.com/KilaWattCloud/kilawatt-mcp-server
+- **npm:** https://www.npmjs.com/package/kilawatt-mcp-server
 
 ## Smithery
 
@@ -60,8 +60,8 @@
 - `KILAWATT_BASE_URL`: Optional gateway endpoint override.
 - `KILAWATT_X402_URL`: Optional x402 endpoint override.
 
-**Repository:** https://github.com/KilaWattCloud/kilawatt-mcp-server  
-**npm:** https://www.npmjs.com/package/kilawatt-mcp-server
+- **Repository:** https://github.com/KilaWattCloud/kilawatt-mcp-server
+- **npm:** https://www.npmjs.com/package/kilawatt-mcp-server
 
 ## Composio
 
@@ -81,8 +81,8 @@
 - `KILAWATT_BASE_URL`: Optional gateway endpoint override.
 - `KILAWATT_X402_URL`: Optional x402 endpoint override.
 
-**Repository:** https://github.com/KilaWattCloud/kilawatt-mcp-server  
-**npm:** https://www.npmjs.com/package/kilawatt-mcp-server
+- **Repository:** https://github.com/KilaWattCloud/kilawatt-mcp-server
+- **npm:** https://www.npmjs.com/package/kilawatt-mcp-server
 
 ## awesome-mcp-servers
 
@@ -102,8 +102,8 @@
 - `KILAWATT_BASE_URL`: Optional gateway endpoint override.
 - `KILAWATT_X402_URL`: Optional x402 endpoint override.
 
-**Repository:** https://github.com/KilaWattCloud/kilawatt-mcp-server  
-**npm:** https://www.npmjs.com/package/kilawatt-mcp-server
+- **Repository:** https://github.com/KilaWattCloud/kilawatt-mcp-server
+- **npm:** https://www.npmjs.com/package/kilawatt-mcp-server
 
 ## Cline marketplace
 
@@ -123,8 +123,8 @@
 - `KILAWATT_BASE_URL`: Optional gateway endpoint override.
 - `KILAWATT_X402_URL`: Optional x402 endpoint override.
 
-**Repository:** https://github.com/KilaWattCloud/kilawatt-mcp-server  
-**npm:** https://www.npmjs.com/package/kilawatt-mcp-server
+- **Repository:** https://github.com/KilaWattCloud/kilawatt-mcp-server
+- **npm:** https://www.npmjs.com/package/kilawatt-mcp-server
 
 ## Metadata review
 
