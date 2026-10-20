@@ -31,7 +31,7 @@ async function listTools() {
   }
 }
 
-const cell = (value) => String(value).replace(/\|/g, "\\|").replace(/\n/g, " ");
+const cell = (value) => String(value).replace(/[\\|]/g, "\\$&").replace(/\n/g, " ");
 const code = (value) => `\`${typeof value === "string" ? value : JSON.stringify(value)}\``;
 
 function allowedValues(schema) {
