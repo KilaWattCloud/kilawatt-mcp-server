@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Quote-only examples for LangChain, CrewAI, SkyPilot, a Node.js client and the MCP Python SDK, with examples/README.md and links in the README Works with section
+
 ### Changed
 - README: added a title, table of contents, and full reference for all four tools, including a list of differences between `deploy_gpu_node` and the x402 tools
 - Updated docs/faq.md and docs/clients.md to match the README

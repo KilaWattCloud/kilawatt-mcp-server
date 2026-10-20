@@ -1,0 +1,8 @@
+# Example SkyPilot task. Launch it yourself with: sky launch task.yaml
+name: gpu-check
+
+resources:
+  accelerators: H100:1
+
+run: |
+  nvidia-smi

@@ -26,6 +26,13 @@ Model Context Protocol (MCP) server for requesting GPU compute capacity from Kil
 - goose (step-by-step guide: [docs/GOOSE_TUTORIAL.md](docs/GOOSE_TUTORIAL.md))
 - Claude Desktop
 - Cursor
+- LangChain and LangGraph ([example](examples/langchain/kilawatt_langchain.py))
+- CrewAI ([example](examples/crewai/kilawatt_crewai.py))
+- SkyPilot ([example](examples/skypilot/price_check_then_launch.py))
+- Node.js client ([example](examples/node-client/))
+- MCP Python SDK ([example](examples/python-sdk/kilawatt_client.py))
+
+All examples are quote-only. See [examples/README.md](examples/README.md).
 
 Client setup steps are in [docs/clients.md](docs/clients.md).
 
