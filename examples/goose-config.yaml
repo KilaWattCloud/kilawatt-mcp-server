@@ -14,5 +14,6 @@ extensions:
       KILAWATT_X402_MAX_USD_PER_SESSION: "1.00"
       KILAWATT_X402_URL: "https://www.kilawattcloud.dev/api/public/x402/exec"
       KILAWATT_BASE_URL: "https://www.kilawattcloud.dev/api/public/v1"
+      KILAWATT_SITE_URL: "https://www.kilawattcloud.dev"
     enabled: true
     timeout: 300

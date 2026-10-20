@@ -54,7 +54,7 @@ Before submitting a pull request, please:
 
 ## Releases
 
-Maintainers publish releases by publishing a GitHub Release. The release workflow publishes the package to npm with provenance using the repository's `NPM_TOKEN` secret. Do not publish the package manually.
+Releases are published manually by a maintainer running the "Publish to npm" workflow (`workflow_dispatch`) from the Actions tab. The workflow requires the `NPM_TOKEN` repository secret. Do not publish the package from a local machine.
 
 ## Reporting Issues
 

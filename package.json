@@ -1,6 +1,6 @@
 {
   "name": "kilawatt-mcp-server",
-"version": "0.2.1",
+"version": "0.3.0",
   "description": "Kilawatt Cloud MCP server for requesting GPU compute capacity with account-based and x402 payment options.",
   "main": "index.js",
   "bin": {
@@ -38,8 +38,8 @@
   },
   "scripts": {
     "start": "node index.js",
-    "test": "node test/server.test.js",
-    "check": "node --check index.js && node --check test/server.test.js && npm test"
+    "test": "node test/server.test.js && node test/discovery.test.js",
+    "check": "node --check index.js && node --check test/server.test.js && node --check test/discovery.test.js && npm test"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",

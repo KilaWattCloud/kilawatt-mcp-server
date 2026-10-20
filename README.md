@@ -40,6 +40,13 @@ Client setup steps are in [docs/clients.md](docs/clients.md).
 
 The default endpoint is Kilawatt Cloud's gateway: `https://www.kilawattcloud.dev/api/public/v1`. Change it with the `KILAWATT_BASE_URL` environment variable.
 
+The discovery and resume tools (`get_capacity`, `get_platform_status`, `get_pricing`, `get_resume_info` and `resume_job`) use the site root instead: `https://www.kilawattcloud.dev`. Change it with the optional `KILAWATT_SITE_URL` environment variable. A trailing slash is removed.
+
+| Variable | Used by | Default |
+|----------|---------|---------|
+| `KILAWATT_BASE_URL` | `deploy_gpu_node` | `https://www.kilawattcloud.dev/api/public/v1` |
+| `KILAWATT_SITE_URL` | `get_capacity`, `get_platform_status`, `get_pricing`, `get_resume_info`, `resume_job` | `https://www.kilawattcloud.dev` |
+
 ## Installation
 
 Install and run via npx:
@@ -50,7 +57,7 @@ npx -y kilawatt-mcp-server
 
 ## Configuration
 
-Set your Kilawatt API key to use `deploy_gpu_node`. It is not required to start the server or use the x402 tools:
+Set your Kilawatt API key to use `deploy_gpu_node`, `get_resume_info` or `resume_job`. It is not required to start the server, use the x402 tools, or use `get_capacity`, `get_platform_status` and `get_pricing`:
 
 ```bash
 export KILAWATT_API_KEY=kw_live_YOUR_KEY_HERE
@@ -98,7 +105,7 @@ The server listens on stdio for MCP requests from your agent.
 
 ## Available Tools
 
-The server exposes four tools: `deploy_gpu_node`, `x402_quote`, `x402_run_job` and `x402_job_status`.
+The server exposes nine tools: `deploy_gpu_node`, `x402_quote`, `x402_run_job`, `x402_job_status`, `get_capacity`, `get_platform_status`, `get_pricing`, `get_resume_info` and `resume_job`.
 
 ### `deploy_gpu_node`
 
@@ -149,6 +156,64 @@ Get the status of a job created through x402, using the API key saved locally by
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
 | `job_id` | string | Yes | 1 to 128 characters |
+
+### `get_capacity`
+
+Read current GPU capacity data. Read-only. No API key and no arguments. Calls `GET {KILAWATT_SITE_URL}/api/capacity`. If the data is not available right now (HTTP 503 with code `unavailable`), the tool says so.
+
+```json
+{ "name": "get_capacity", "arguments": {} }
+```
+
+### `get_platform_status`
+
+Read the platform status. Read-only. No API key and no arguments. Calls `GET {KILAWATT_SITE_URL}/api/status`. The result has `status` (`operational`, `degraded`, `incident` or `unknown`), `status_note`, `last_checked`, `status_page` and `latest_test_summary`.
+
+```json
+{ "name": "get_platform_status", "arguments": {} }
+```
+
+### `get_pricing`
+
+Read indicative USD prices per GPU hour for each GPU tier. Read-only. No API key and no arguments. Calls `GET {KILAWATT_SITE_URL}/api/pricing`. These prices are indicative only. The exact price for a job comes from an unpaid x402 request, for example `x402_quote`.
+
+```json
+{ "name": "get_pricing", "arguments": {} }
+```
+
+### `get_resume_info`
+
+Check whether a job can be resumed from its last checkpoint. Read-only: nothing is started or charged. Requires `KILAWATT_API_KEY`. Calls `GET {KILAWATT_SITE_URL}/api/jobs/{job_id}/resume-info`.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `job_id` | string | Yes | 36 characters, hex digits and dashes. Checked before any request is sent. |
+
+The result has `job_id`, `checkpoint_count`, `last_checkpoint_at`, `can_resume`, `reason` (`null`, `no_checkpoint` or `job_still_running`) and `resume_action`.
+
+```json
+{ "name": "get_resume_info", "arguments": { "job_id": "YOUR_JOB_ID" } }
+```
+
+### `resume_job`
+
+Start a new paid run that resumes a job from its last checkpoint on a different supplier. **This spends money.** Requires `KILAWATT_API_KEY`. Call `get_resume_info` first and ask the user before confirming. Calls `POST {KILAWATT_SITE_URL}/api/jobs/{job_id}/resume` once and never retries it automatically.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `job_id` | string | Yes | 36 characters, hex digits and dashes |
+| `confirm` | boolean | Yes | Must be exactly `true` |
+| `max_spend_usd` | number | Yes | Spend cap for the new run. Must be greater than 0. |
+| `duration_seconds` | integer | No | 60 to 86400. Sent only when given. |
+
+All of these are checked locally before any request is sent. If a check fails, nothing is sent.
+
+```json
+{
+  "name": "resume_job",
+  "arguments": { "job_id": "YOUR_JOB_ID", "confirm": true, "max_spend_usd": 5 }
+}
+```
 
 ### Differences between `deploy_gpu_node` and the x402 tools
 

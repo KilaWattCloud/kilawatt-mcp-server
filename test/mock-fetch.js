@@ -8,6 +8,47 @@ function trace(entry) {
   if (TRACE_PATH) appendFileSync(TRACE_PATH, `${JSON.stringify(entry)}\n`);
 }
 
+const SITE_RESPONSES = {
+  capacity: { gpus: [{ gpu_tier: "nvidia-h100", available: 4 }] },
+  status: {
+    status: "operational",
+    status_note: null,
+    last_checked: "2026-01-01T00:00:00Z",
+    status_page: "https://site.test/status",
+    latest_test_summary: null,
+  },
+  pricing: {
+    currency: "USD",
+    unit: "gpu_hour",
+    tiers: [{ gpu_tier: "nvidia-h100", name: "H100", unit: "gpu_hour", price_usd: 1.5, price_basis: "test" }],
+    quote: { method: "POST", url: "https://site.test/quote", note: "test" },
+  },
+  "resume-info": {
+    job_id: "00000000-0000-0000-0000-000000000001",
+    checkpoint_count: 2,
+    last_checkpoint_at: "2026-01-01T00:00:00Z",
+    can_resume: true,
+    reason: null,
+    resume_action: { method: "POST", url: "https://site.test/resume", body: {}, behavior: "test" },
+  },
+  resume: {
+    id: "00000000-0000-0000-0000-000000000002",
+    status: "queued",
+    resumed_from_job_id: "00000000-0000-0000-0000-000000000001",
+    resumed_from_checkpoint_at: "2026-01-01T00:00:00Z",
+  },
+};
+
+function siteEndpointFor(url) {
+  const { pathname } = new URL(url);
+  if (pathname === "/api/capacity") return "capacity";
+  if (pathname === "/api/status") return "status";
+  if (pathname === "/api/pricing") return "pricing";
+  if (/^\/api\/jobs\/[^/]+\/resume-info$/.test(pathname)) return "resume-info";
+  if (/^\/api\/jobs\/[^/]+\/resume$/.test(pathname)) return "resume";
+  return null;
+}
+
 globalThis.fetch = async (input, init = {}) => {
   const url = String(input);
   const headers = new Headers(init.headers);
@@ -22,6 +63,24 @@ globalThis.fetch = async (input, init = {}) => {
       routing_policy: "lowest_cost",
       would_route: ["test-provider"],
     });
+  }
+  const siteEndpoint = siteEndpointFor(url);
+  if (siteEndpoint) {
+    trace({
+      kind: "site",
+      endpoint: siteEndpoint,
+      url,
+      method: init.method ?? "GET",
+      authorization: headers.get("authorization"),
+      contentType: headers.get("content-type"),
+      body: init.body ?? null,
+    });
+    if (process.env.SITE_TEST_STATUS) {
+      const errorBody = { error: process.env.SITE_TEST_ERROR ?? "test error" };
+      if (process.env.SITE_TEST_CODE) errorBody.code = process.env.SITE_TEST_CODE;
+      return Response.json(errorBody, { status: Number(process.env.SITE_TEST_STATUS) });
+    }
+    return Response.json(SITE_RESPONSES[siteEndpoint]);
   }
   if (url.includes("/jobs/")) {
     trace({
