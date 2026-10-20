@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- README: added a title, table of contents, and full reference for all four tools, including a list of differences between `deploy_gpu_node` and the x402 tools
+- Updated docs/faq.md and docs/clients.md to match the README
+
+## [0.2.1] - 2026-10-13
+
+### Fixed
+- Include x402.js in the npm package (PR #10)
+
 ## [0.2.0] - 2026-10-13
 
 ### Added

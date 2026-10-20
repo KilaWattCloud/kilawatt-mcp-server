@@ -16,6 +16,10 @@ Add the contents of [`examples/claude-desktop.json`](../examples/claude-desktop.
 
 Add [`examples/cursor-mcp.json`](../examples/cursor-mcp.json) as `.cursor/mcp.json` in your project, or add the same server entry in Cursor's MCP settings. Save the configuration and restart or reload the MCP server.
 
+## Tools
+
+All clients get the same four tools: `deploy_gpu_node`, `x402_quote`, `x402_run_job` and `x402_job_status`. Parameters are listed in the [README](../README.md#available-tools).
+
 ## Environment values
 
 - Set `KILAWATT_API_KEY` to your own private `kw_live_` API key only if you plan to use `deploy_gpu_node`.
