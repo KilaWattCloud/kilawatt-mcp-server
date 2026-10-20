@@ -1,0 +1,10 @@
+name: Kilawatt Cloud
+version: 0.0.1
+schema: v1
+mcpServers:
+  - name: kilawatt
+    type: stdio
+    command: npx
+    args:
+      - "-y"
+      - "kilawatt-mcp-server"

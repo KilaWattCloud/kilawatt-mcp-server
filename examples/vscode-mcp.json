@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "kilawatt": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "kilawatt-mcp-server"]
+    }
+  }
+}

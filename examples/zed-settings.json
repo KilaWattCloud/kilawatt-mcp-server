@@ -1,0 +1,9 @@
+{
+  "context_servers": {
+    "kilawatt": {
+      "command": "npx",
+      "args": ["-y", "kilawatt-mcp-server"],
+      "env": {}
+    }
+  }
+}

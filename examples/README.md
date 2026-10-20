@@ -12,4 +12,18 @@ Every example is quote-only. Each one calls `x402_quote` and never calls `x402_r
 
 The SkyPilot script prints a `sky launch` command for you to run yourself. It does not run it.
 
-Client configuration files for goose, Claude Desktop and Cursor are in this folder. For goose, see also the [goose tutorial](../docs/GOOSE_TUTORIAL.md).
+Client configuration files are in this folder:
+
+| Client | File |
+|--------|------|
+| goose | [goose-config.yaml](goose-config.yaml) |
+| Claude Desktop | [claude-desktop.json](claude-desktop.json) |
+| Cursor | [cursor-mcp.json](cursor-mcp.json) |
+| VS Code | [vscode-mcp.json](vscode-mcp.json) |
+| Windsurf | [windsurf-mcp-config.json](windsurf-mcp-config.json) |
+| Cline | [cline-mcp-settings.json](cline-mcp-settings.json) |
+| Continue | [continue/kilawatt.yaml](continue/kilawatt.yaml) |
+| Zed | [zed-settings.json](zed-settings.json) |
+| Claude Code | [claude-code-mcp-add.sh](claude-code-mcp-add.sh) |
+
+The VS Code, Windsurf, Cline, Continue, Zed and Claude Code files are quote-only: they set no keys and no payment settings. Setup steps for every client are in [docs/clients.md](../docs/clients.md). For goose, see also the [goose tutorial](../docs/GOOSE_TUTORIAL.md).
