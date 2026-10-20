@@ -1,17 +1,29 @@
-# Kilawatt Cloud provides GPU compute capacity through an MCP server.
-The default endpoint is Kilawatt Cloud's gateway: `https://www.kilawattcloud.dev/api/public/v1`.
+# Kilawatt Cloud MCP Server
+
+Model Context Protocol (MCP) server for requesting GPU compute capacity from Kilawatt Cloud, with account-based and x402 payment options.
 
 [![Build Status](https://github.com/KilaWattCloud/kilawatt-mcp-server/workflows/Test/badge.svg)](https://github.com/KilaWattCloud/kilawatt-mcp-server/actions)
 [![npm version](https://img.shields.io/npm/v/kilawatt-mcp-server)](https://www.npmjs.com/package/kilawatt-mcp-server)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-Model Context Protocol (MCP) server for Kilawatt Cloud GPU provisioning. Enables Cursor, Claude Desktop, and other AI agents to programmatically request and manage real GPU compute nodes.
-
 **This server calls the real Kilawatt gateways.** Every response is an actual HTTP result from the Kilawatt public API or the x402 endpoint. There are no fabricated responses.
+
+## Table of contents
+
+- [Works with](#works-with)
+- [Endpoint](#endpoint)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Use with Claude Desktop / Cursor](#use-with-claude-desktop--cursor)
+- [Running the Server](#running-the-server)
+- [Available Tools](#available-tools)
+- [Error Handling](#error-handling)
+- [Links](#links)
+- [License](#license)
 
 ## Works with
 
-- goose ([step-by-step guide](docs/GOOSE_TUTORIAL.md))
+- goose (step-by-step guide: [docs/GOOSE_TUTORIAL.md](docs/GOOSE_TUTORIAL.md))
 - Claude Desktop
 - Cursor
 - LangChain and LangGraph ([example](examples/langchain/kilawatt_langchain.py))
@@ -21,6 +33,8 @@ Model Context Protocol (MCP) server for Kilawatt Cloud GPU provisioning. Enables
 - MCP Python SDK ([example](examples/python-sdk/kilawatt_client.py))
 
 All examples are quote-only. See [examples/README.md](examples/README.md).
+
+Client setup steps are in [docs/clients.md](docs/clients.md).
 
 ## Endpoint
 
@@ -84,56 +98,70 @@ The server listens on stdio for MCP requests from your agent.
 
 ## Available Tools
 
+The server exposes four tools: `deploy_gpu_node`, `x402_quote`, `x402_run_job` and `x402_job_status`.
+
 ### `deploy_gpu_node`
 
-Provision real GPU compute on Kilawatt Cloud. This starts an actual machine. Set `dry_run: true` to check pricing and routing without provisioning or charging.
+Provision real GPU compute on Kilawatt Cloud. This starts an actual machine and charges the caller's Kilawatt wallet. Set `dry_run: true` to check pricing and routing without provisioning or charging. Requires `KILAWATT_API_KEY`.
 
-**Parameters:**
+| Parameter | Type | Required | Default | Allowed values | Description |
+|-----------|------|----------|---------|----------------|-------------|
+| `gpu_type` | string | No | `nvidia-h100` | Any non-empty string up to 64 characters (no enum is checked locally) | GPU model identifier; the gateway decides what it accepts |
+| `card_count` | integer | No | `1` | 1 to 64 | Number of GPUs |
+| `duration_seconds` | number | No | `600` | 1 to 86400 | How long the node is needed. Billed up front. |
+| `routing_policy` | string | No | `lowest_cost` | `lowest_cost`, `lowest_latency`, `zero_quota` | How the smart order router picks a node |
+| `dry_run` | boolean | No | `false` | `true`, `false` | Price and pre-authorize only |
 
-| Parameter | Type | Required | Default | Range | Description |
-|-----------|------|----------|---------|-------|-------------|
-| `gpu_type` | string | No | server default | N/A | GPU model identifier supported by the endpoint |
-| `card_count` | integer | No | `1` | 1–64 | Number of GPUs to provision |
-| `duration_seconds` | number | No | `600` | 1-86400 | How long the node is needed, in seconds. Billed up front. |
-| `routing_policy` | string | No | `"lowest_cost"` | `lowest_cost`, `lowest_latency`, `zero_quota` | How the smart order router picks a node |
-| `dry_run` | boolean | No | `false` | N/A | Price and pre-authorize only. Returns cost estimate and routing order without provisioning or charging. |
-
-**Example: Deploy 4 GPUs for 1 hour at lowest cost**
-
-```javascript
+```json
 {
   "name": "deploy_gpu_node",
-  "arguments": {
-    "card_count": 4,
-    "duration_seconds": 3600,
-    "routing_policy": "lowest_cost",
-    "dry_run": false
-  }
+  "arguments": { "card_count": 2, "duration_seconds": 1800, "dry_run": true }
 }
 ```
 
-**Example: Dry-run to check pricing**
+### `x402_quote`
 
-```javascript
-{
-  "name": "deploy_gpu_node",
-  "arguments": {
-    "card_count": 2,
-    "duration_seconds": 1800,
-    "dry_run": true
-  }
-}
-```
+Get the current price and Base USDC payment details for a GPU job without paying.
+
+| Parameter | Type | Required | Default | Allowed values | Description |
+|-----------|------|----------|---------|----------------|-------------|
+| `gpu_type` | string | No | `nvidia-h100` | `nvidia-b300`, `nvidia-b200`, `nvidia-h200`, `nvidia-h100`, `nvidia-a100`, `nvidia-l40s`, `nvidia-l40`, `nvidia-a40`, `nvidia-a10`, `nvidia-rtx-a6000`, `nvidia-rtx-a5000`, `nvidia-rtx-a4500`, `nvidia-rtx-a4000`, `nvidia-rtx-5090`, `nvidia-rtx-4090`, `nvidia-rtx-3090` | GPU model |
+| `card_count` | integer | No | `1` | 1 to 4 for `nvidia-b200`; 1 to 8 for `nvidia-h100`, `nvidia-h200`, `nvidia-a100`, `nvidia-l40s`; 1 to 16 for all others | Number of GPUs |
+| `duration_seconds` | number | No | `600` | 60 to 86400 | Job length in seconds |
+| `routing_policy` | string | No | not sent | `lowest_cost`, `lowest_latency`, `zero_quota` | Routing policy |
+| `workload_type` | string | No | not sent | `agent_exec`, `fine_tune`, `batch_inference` | Workload type |
+
+The published input schema states a maximum of 16 for `card_count`. The tighter per-GPU limits above are enforced in code when the call is made.
+
+### `x402_run_job`
+
+Quote and pay for one GPU job in Base USDC. Takes the same parameters as `x402_quote`, plus:
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `max_usd` | number | Yes | Must be greater than 0. Payment is refused above this amount or above either spend cap. |
+| `confirm` | boolean | Yes | Must be `true` or nothing is paid. |
+
+### `x402_job_status`
+
+Get the status of a job created through x402, using the API key saved locally by `x402_run_job`.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `job_id` | string | Yes | 1 to 128 characters |
+
+### Differences between `deploy_gpu_node` and the x402 tools
+
+- `gpu_type` is free text (up to 64 characters) in `deploy_gpu_node` but a fixed list in the x402 tools.
+- `card_count` allows up to 64 in `deploy_gpu_node` but at most 16 (less for some GPUs) in the x402 tools.
+- `duration_seconds` allows 1 to 86400 in `deploy_gpu_node` but 60 to 86400 in the x402 tools.
+- `deploy_gpu_node` defaults `routing_policy` to `lowest_cost`; the x402 tools send no routing policy unless you set one.
 
 Tool results are formatted from the real HTTP response returned by the Kilawatt gateway.
 
-### x402 tools
+### x402 settings
 
-The x402 tools let you request capacity with Base USDC without a Kilawatt account or API key:
-
-- `x402_quote` checks the current price and payment details without paying.
-- `x402_run_job` quotes and pays for one GPU job. It requires `confirm: true` and a positive `max_usd`; payment is refused above that amount or either configured spend cap.
-- `x402_job_status` checks a paid job using the API key saved locally by `x402_run_job`.
+The x402 tools let you request capacity with Base USDC without a Kilawatt account or API key. Spend caps are enforced locally.
 
 The server must be able to read the following environment variables when you use x402 payments:
 
