@@ -14,7 +14,7 @@
 
 ## What can the tools do?
 
-There are four tools: `deploy_gpu_node`, `x402_quote`, `x402_run_job` and `x402_job_status`. They provision compute capacity and report job information. They do not accept or run user code or commands. See the [README tool reference](../README.md#available-tools) for parameters.
+There are nine tools: `deploy_gpu_node`, `x402_quote`, `x402_run_job`, `x402_job_status`, `get_capacity`, `get_platform_status`, `get_pricing`, `get_resume_info` and `resume_job`. They provision compute capacity, report capacity, status and indicative pricing, report job information, and resume a job from its last checkpoint. `resume_job` starts a new paid run and needs `confirm: true` and `max_spend_usd`. They do not accept or run user code or commands. See the [README tool reference](../README.md#available-tools) for parameters.
 
 ## Why do `deploy_gpu_node` and the x402 tools accept different values?
 
@@ -22,7 +22,7 @@ There are four tools: `deploy_gpu_node`, `x402_quote`, `x402_run_job` and `x402_
 
 ## How do I change the endpoint?
 
-Set `KILAWATT_BASE_URL` to override the default Kilawatt Cloud gateway used by `deploy_gpu_node`. The default is `https://www.kilawattcloud.dev/api/public/v1`. For the x402 execution endpoint, use `KILAWATT_X402_URL`. Restart the MCP server after changing environment values.
+Set `KILAWATT_BASE_URL` to override the default Kilawatt Cloud gateway used by `deploy_gpu_node`. The default is `https://www.kilawattcloud.dev/api/public/v1`. For the x402 execution endpoint, use `KILAWATT_X402_URL`. The discovery and resume tools (`get_capacity`, `get_platform_status`, `get_pricing`, `get_resume_info` and `resume_job`) use `KILAWATT_SITE_URL`, an optional site root that defaults to `https://www.kilawattcloud.dev`. Restart the MCP server after changing environment values.
 
 ## How do I report a problem or vulnerability?
 

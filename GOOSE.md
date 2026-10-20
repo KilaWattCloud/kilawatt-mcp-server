@@ -9,14 +9,19 @@ Tested end to end in goose by the Kilawatt team: a dry run, then 15 paid x402 jo
 
 The default endpoint is Kilawatt Cloud's gateway: `https://www.kilawattcloud.dev/api/public/v1`. Change it with the `KILAWATT_BASE_URL` environment variable.
 
+The discovery and resume tools use the site root `https://www.kilawattcloud.dev`. Change it with the optional `KILAWATT_SITE_URL` environment variable.
+
 ## What the extension does
 
-It adds four tools to your goose agent:
+It adds nine tools to your goose agent:
 
 - `deploy_gpu_node`: price, route and provision real GPU capacity on Kilawatt Cloud. Set `dry_run: true` to see the price and routing without provisioning or charging.
 - `x402_quote`: view a Base USDC price and payment details without paying.
 - `x402_run_job`: pay for a single job after explicit confirmation and spend-cap checks.
 - `x402_job_status`: check the status of an x402 job using its locally saved API key.
+- `get_capacity`, `get_platform_status`, `get_pricing`: read-only capacity, status and indicative pricing. No API key needed.
+- `get_resume_info`: check whether a job can be resumed from its last checkpoint. Read-only. Needs `KILAWATT_API_KEY`.
+- `resume_job`: start a new paid run from a job's last checkpoint. Needs `confirm: true`, `max_spend_usd` and `KILAWATT_API_KEY`.
 
 Each call is a real HTTP request to the Kilawatt gateway. There are no mock responses.
 

@@ -6,12 +6,12 @@
     "url": "https://github.com/KilaWattCloud/kilawatt-mcp-server",
     "source": "github"
   },
-  "version": "0.2.1",
+  "version": "0.3.0",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "kilawatt-mcp-server",
-      "version": "0.2.1",
+      "version": "0.3.0",
       "transport": {
         "type": "stdio"
       },
@@ -29,6 +29,13 @@
           "format": "string",
           "isSecret": false,
           "name": "KILAWATT_BASE_URL"
+        },
+        {
+          "description": "Optional site root for the discovery and resume tools",
+          "isRequired": false,
+          "format": "string",
+          "isSecret": false,
+          "name": "KILAWATT_SITE_URL"
         },
         {
           "description": "Wallet private key for paying for x402 jobs",

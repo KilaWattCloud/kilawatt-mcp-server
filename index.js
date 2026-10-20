@@ -8,6 +8,7 @@
  * Environment:
  *   KILAWATT_API_KEY          needed for deploy_gpu_node, format kw_live_...
  *   KILAWATT_BASE_URL         optional, defaults to the production gateway
+ *   KILAWATT_SITE_URL         optional, site root for the discovery and resume tools
  *   KILAWATT_X402_PRIVATE_KEY needed only to pay for x402 jobs
  */
 
@@ -24,6 +25,7 @@ const { version } = JSON.parse(
   readFileSync(new URL("./package.json", import.meta.url), "utf8"),
 );
 const DEFAULT_BASE_URL = "https://www.kilawattcloud.dev/api/public/v1";
+const DEFAULT_SITE_URL = "https://www.kilawattcloud.dev";
 const REQUEST_TIMEOUT_MS = 60_000;
 
 const MAX_CARD_COUNT = 64;
@@ -75,6 +77,10 @@ function apiKey() {
 
 function baseUrl() {
   return (process.env.KILAWATT_BASE_URL ?? DEFAULT_BASE_URL).replace(/\/+$/, "");
+}
+
+function siteUrl() {
+  return (process.env.KILAWATT_SITE_URL ?? DEFAULT_SITE_URL).replace(/\/+$/, "");
 }
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -283,19 +289,269 @@ const DEPLOY_GPU_NODE = {
   },
 };
 
+const JOB_ID_PATTERN = /^[0-9a-f-]{36}$/i;
+const MIN_RESUME_DURATION_SECONDS = 60;
+
+const NO_INPUT = { type: "object", properties: {}, additionalProperties: false };
+const JOB_ID_PROPERTY = {
+  type: "string",
+  pattern: "^[0-9a-fA-F-]{36}$",
+  description: "The job ID (36 characters, hex digits and dashes).",
+};
+
+const DISCOVERY_TOOLS = [
+  {
+    name: "get_capacity",
+    description:
+      "Read current GPU capacity data from Kilawatt Cloud. Read-only: no API key is needed and nothing is provisioned or charged. If capacity data is not available right now, the tool says so.",
+    inputSchema: NO_INPUT,
+    annotations: { readOnlyHint: true },
+  },
+  {
+    name: "get_platform_status",
+    description:
+      "Read the current Kilawatt Cloud platform status: status (operational, degraded, incident or unknown), a status note, when it was last checked, and links to the status page and the latest test summary. Read-only: no API key is needed and nothing is charged.",
+    inputSchema: NO_INPUT,
+    annotations: { readOnlyHint: true },
+  },
+  {
+    name: "get_pricing",
+    description:
+      "Read indicative USD prices per GPU hour for each GPU tier. Read-only: no API key is needed and nothing is charged. These prices are indicative only. The exact price for a job comes from an unpaid x402 request (use x402_quote).",
+    inputSchema: NO_INPUT,
+    annotations: { readOnlyHint: true },
+  },
+  {
+    name: "get_resume_info",
+    description:
+      "Check whether a job can be resumed from its last checkpoint. Returns the checkpoint count, the last checkpoint time, can_resume, the reason when it cannot be resumed, and the resume action. Read-only: nothing is started or charged. Needs KILAWATT_API_KEY.",
+    inputSchema: {
+      type: "object",
+      properties: { job_id: JOB_ID_PROPERTY },
+      required: ["job_id"],
+      additionalProperties: false,
+    },
+    annotations: { readOnlyHint: true },
+  },
+  {
+    name: "resume_job",
+    description:
+      "Start a NEW PAID run that resumes a job from its last checkpoint on a different supplier. This spends money. It requires confirm set to true and a spend cap in max_spend_usd. Call get_resume_info first, show the user what it returns, and ask the user before calling this tool with confirm true. The request is never retried automatically. Needs KILAWATT_API_KEY.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        job_id: JOB_ID_PROPERTY,
+        confirm: {
+          type: "boolean",
+          const: true,
+          description: "Must be exactly true, and only after the user has agreed to start a paid run.",
+        },
+        max_spend_usd: {
+          type: "number",
+          exclusiveMinimum: 0,
+          description: "Required spend cap in USD for the new run. Must be a positive number.",
+        },
+        duration_seconds: {
+          type: "integer",
+          minimum: MIN_RESUME_DURATION_SECONDS,
+          maximum: MAX_DURATION_SECONDS,
+          description: "Optional run length in seconds, a whole number from 60 to 86400.",
+        },
+      },
+      required: ["job_id", "confirm", "max_spend_usd"],
+      additionalProperties: false,
+    },
+    annotations: { readOnlyHint: false, destructiveHint: false },
+  },
+];
+
+function validateJobId(args) {
+  const jobId = args.job_id;
+  if (typeof jobId !== "string" || !JOB_ID_PATTERN.test(jobId)) {
+    throw new Error("job_id must be a 36 character job ID made of hex digits and dashes.");
+  }
+  return jobId;
+}
+
+function validateResume(args) {
+  const jobId = validateJobId(args);
+  if (args.confirm !== true) {
+    throw new Error(
+      "confirm must be exactly true. resume_job starts a new paid run: call get_resume_info first and ask the user before confirming. Nothing was sent.",
+    );
+  }
+  const maxSpend = args.max_spend_usd;
+  if (typeof maxSpend !== "number" || !Number.isFinite(maxSpend) || maxSpend <= 0) {
+    throw new Error("max_spend_usd is required and must be a positive number. Nothing was sent.");
+  }
+  const body = { confirm: true, max_spend_usd: maxSpend };
+  if (args.duration_seconds !== undefined) {
+    const duration = args.duration_seconds;
+    if (
+      !Number.isInteger(duration) ||
+      duration < MIN_RESUME_DURATION_SECONDS ||
+      duration > MAX_DURATION_SECONDS
+    ) {
+      throw new Error(
+        `duration_seconds must be a whole number between ${MIN_RESUME_DURATION_SECONDS} and ${MAX_DURATION_SECONDS}. Nothing was sent.`,
+      );
+    }
+    body.duration_seconds = duration;
+  }
+  return { jobId, body };
+}
+
+// One request to the site root. Never retried: resume_job can spend money,
+// and the job endpoints return 429 after repeated failed authentication.
+async function siteRequest(method, path, { auth = false, body } = {}) {
+  const headers = {};
+  if (auth) headers.authorization = `Bearer ${apiKey()}`;
+  if (body !== undefined) headers["content-type"] = "application/json";
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  let response;
+  try {
+    response = await fetch(`${siteUrl()}${path}`, {
+      method,
+      headers,
+      body: body === undefined ? undefined : JSON.stringify(body),
+      signal: controller.signal,
+    });
+  } catch (cause) {
+    if (controller.signal.aborted) throw new GatewayTimeoutError(REQUEST_TIMEOUT_MS);
+    throw new GatewayConnectionError(cause);
+  } finally {
+    clearTimeout(timer);
+  }
+
+  const text = await response.text();
+  let parsed;
+  try {
+    parsed = text ? JSON.parse(text) : {};
+  } catch {
+    parsed = { error: text };
+  }
+
+  if (!response.ok) throw new GatewayError(response.status, parsed);
+  return parsed;
+}
+
+const SITE_ERROR_HINTS = {
+  unavailable: "This data is not available right now. Try again later.",
+  unauthorized:
+    "Authentication failed. The API key is missing, malformed or revoked. Set KILAWATT_API_KEY to a valid key.",
+  not_found: "No job with this job_id was found for this API key.",
+  no_checkpoint: "This job has no checkpoint to resume from. No new run was started.",
+  job_still_running: "This job is still running, so it cannot be resumed yet. No new run was started.",
+  confirmation_required: "The server requires confirm to be true. No new run was started.",
+  spend_cap_required: "The server requires a positive max_spend_usd. No new run was started.",
+  invalid_duration: "The server rejected duration_seconds. No new run was started.",
+};
+
+function describeSiteError(error, { spends = false } = {}) {
+  if (!(error instanceof GatewayError)) {
+    if (spends && (error instanceof GatewayTimeoutError || error instanceof GatewayConnectionError)) {
+      return `${error.message}. The resume request may or may not have reached the server, and it was not retried. Call get_resume_info before trying again.`;
+    }
+    if (error instanceof GatewayTimeoutError || error instanceof GatewayConnectionError) {
+      return `${error.message}. Nothing was started or charged. Check KILAWATT_SITE_URL if this keeps happening.`;
+    }
+    return error?.message ?? String(error);
+  }
+
+  const code = typeof error.body?.code === "string" ? error.body.code : null;
+  let hint = code ? SITE_ERROR_HINTS[code] : undefined;
+  if (!hint) {
+    switch (error.status) {
+      case 401:
+        hint = SITE_ERROR_HINTS.unauthorized;
+        break;
+      case 404:
+        hint = "Endpoint not found. Check KILAWATT_SITE_URL.";
+        break;
+      case 429:
+        hint =
+          "Too many requests. On the job endpoints this follows repeated failed authentication attempts. Wait before trying again. The request was not retried.";
+        break;
+      case 503:
+        hint = SITE_ERROR_HINTS.unavailable;
+        break;
+      default:
+        hint = describeError(error);
+    }
+  }
+
+  const serverFields = [
+    typeof error.body?.error === "string" ? `Server error: ${error.body.error}` : null,
+    code ? `Server code: ${code}` : null,
+  ].filter(Boolean);
+  return [`HTTP ${error.status}. ${hint}`, ...serverFields].join("\n");
+}
+
+const pretty = (body) => JSON.stringify(body, null, 2);
+
+async function callDiscoveryTool(name, args) {
+  let request;
+  try {
+    switch (name) {
+      case "get_capacity":
+        request = () => siteRequest("GET", "/api/capacity");
+        break;
+      case "get_platform_status":
+        request = () => siteRequest("GET", "/api/status");
+        break;
+      case "get_pricing":
+        request = () => siteRequest("GET", "/api/pricing");
+        break;
+      case "get_resume_info": {
+        const jobId = validateJobId(args);
+        apiKey();
+        request = () =>
+          siteRequest("GET", `/api/jobs/${encodeURIComponent(jobId)}/resume-info`, { auth: true });
+        break;
+      }
+      case "resume_job": {
+        const { jobId, body } = validateResume(args);
+        apiKey();
+        request = () =>
+          siteRequest("POST", `/api/jobs/${encodeURIComponent(jobId)}/resume`, { auth: true, body });
+        break;
+      }
+    }
+  } catch (error) {
+    return { isError: true, content: [{ type: "text", text: error.message }] };
+  }
+
+  const spends = name === "resume_job";
+  try {
+    const result = await request();
+    const text = spends
+      ? `Resume started. A new paid run was created.\n${pretty(result)}`
+      : pretty(result);
+    return { content: [{ type: "text", text }] };
+  } catch (error) {
+    return { isError: true, content: [{ type: "text", text: describeSiteError(error, { spends }) }] };
+  }
+}
+
 const server = new Server(
   { name: "kilawatt-mcp-server", version },
   { capabilities: { tools: {} } },
 );
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
-  tools: [DEPLOY_GPU_NODE, ...X402_TOOLS],
+  tools: [DEPLOY_GPU_NODE, ...X402_TOOLS, ...DISCOVERY_TOOLS],
 }));
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   if (request.params.name !== DEPLOY_GPU_NODE.name) {
     if (X402_TOOLS.some((tool) => tool.name === request.params.name)) {
       return callX402Tool(request.params.name, request.params.arguments ?? {});
+    }
+    if (DISCOVERY_TOOLS.some((tool) => tool.name === request.params.name)) {
+      return callDiscoveryTool(request.params.name, request.params.arguments ?? {});
     }
     return {
       isError: true,

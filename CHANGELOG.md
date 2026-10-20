@@ -7,12 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-20
+
 ### Added
+- `get_capacity` tool: read current GPU capacity data (read-only, no API key)
+- `get_platform_status` tool: read the platform status (read-only, no API key)
+- `get_pricing` tool: read indicative prices per GPU hour (read-only, no API key)
+- `get_resume_info` tool: check whether a job can be resumed from its last checkpoint (read-only, needs `KILAWATT_API_KEY`)
+- `resume_job` tool: start a new paid run from a job's last checkpoint; requires `confirm: true` and `max_spend_usd`, validates locally before sending, and never retries
+- `KILAWATT_SITE_URL` setting for the site root used by the five new tools (default `https://www.kilawattcloud.dev`)
+- Mocked tests for the five new tools
 - Quote-only examples for LangChain, CrewAI, SkyPilot, a Node.js client and the MCP Python SDK, with examples/README.md and links in the README Works with section
 
 ### Changed
 - README: added a title, table of contents, and full reference for all four tools, including a list of differences between `deploy_gpu_node` and the x402 tools
 - Updated docs/faq.md and docs/clients.md to match the README
+- CONTRIBUTING.md now describes the manual "Publish to npm" release workflow
 
 ## [0.2.1] - 2026-10-13
 
